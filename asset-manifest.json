@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/hastane-randevu-sistemi/static/css/main.aeaa38fb.css",
+    "main.js": "/hastane-randevu-sistemi/static/js/main.faa7443c.js",
+    "index.html": "/hastane-randevu-sistemi/index.html",
+    "main.aeaa38fb.css.map": "/hastane-randevu-sistemi/static/css/main.aeaa38fb.css.map",
+    "main.faa7443c.js.map": "/hastane-randevu-sistemi/static/js/main.faa7443c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.aeaa38fb.css",
+    "static/js/main.faa7443c.js"
+  ]
+}
