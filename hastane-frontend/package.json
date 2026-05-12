@@ -1,6 +1,7 @@
 {
+
   "name": "hastane-frontend",
-  "homepage": "https://vasquenos.github.io/hastane-randevu-sistemi",
+
   "version": "0.1.0",
   "private": true,
   "dependencies": {
