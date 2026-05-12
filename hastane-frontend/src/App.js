@@ -303,7 +303,7 @@ export default function App() {
           { key: "kayit", label: "Hasta Kaydı" },
           { key: "randevularim", label: "Randevularım" },
           { key: "admin", label: "Admin Girişi" },
-        ].map(({ key, label }) => (
+        ]?.map(({ key, label }) => (
           <button key={key} className={`nav-btn ${activeTab === key ? "active" : ""}`} onClick={() => setActiveTab(key)}>
             {label}
           </button>
@@ -322,7 +322,7 @@ export default function App() {
         <div className="footer-section links">
           <h4>Hızlı Menü</h4>
           <ul>
-            {[["home", "Ana Sayfa"], ["hakkimizda", "Hakkımızda"], ["randevu", "Randevu Al"], ["kayit", "Hasta Kaydı"]].map(([key, label]) => (
+            {[["home", "Ana Sayfa"], ["hakkimizda", "Hakkımızda"], ["randevu", "Randevu Al"], ["kayit", "Hasta Kaydı"]]?.map(([key, label]) => (
               <li key={key}><button onClick={() => setActiveTab(key)}>{label}</button></li>
             ))}
           </ul>
@@ -387,7 +387,7 @@ export default function App() {
           <div className="doctor-showcase">
             <h2 className="section-title">Alanında Uzman Doktorlarımız</h2>
             <div className="doctor-grid">
-              {doktorlar.map(dr => (
+              {doktorlar?.map(dr => (
                 <div key={dr.DoktorID} className="doctor-card">
                   <div className="dr-image">
                     <img
@@ -479,7 +479,7 @@ export default function App() {
                 <label>BÖLÜM ve DOKTOR SEÇİMİ</label>
                 <select value={randevuForm.doktorId} onChange={e => setRandevuForm({ ...randevuForm, doktorId: e.target.value })} required>
                   <option value="">Doktor Seçiniz...</option>
-                  {doktorlar.map(d => (
+                  {doktorlar?.map(d => (
                     <option key={d.DoktorID} value={d.DoktorID}>{d.BolumAdi} - {d.Unvan} {d.DAd} {d.DSoyad}</option>
                   ))}
                 </select>
@@ -493,7 +493,7 @@ export default function App() {
                 <div className="form-group">
                   <label>Randevu Saati Seçin (10'ar Dakikalık Periyotlar)</label>
                   <div className="time-grid-main">
-                    {ANA_SAATLER.map(anaSaat => {
+                    {ANA_SAATLER?.map(anaSaat => {
                       const hepsiDoluMu = isAnaSaatTamamenDolu(anaSaat);
                       const isExpanded = expandedHour === anaSaat;
                       return (
@@ -507,7 +507,7 @@ export default function App() {
                             {anaSaat} {hepsiDoluMu ? "(Dolu)" : "▼"}
                           </button>
                           <div className={`sub-slots-container ${isExpanded ? "open" : ""}`}>
-                            {getAltSaatler(anaSaat).map(altSaat => {
+                            {getAltSaatler(anaSaat)?.map(altSaat => {
                               const altDolu = doluSaatler.includes(altSaat);
                               const altSecili = randevuForm.saat === altSaat;
                               return (
@@ -569,7 +569,7 @@ export default function App() {
                   <p>Henüz alınmış bir randevunuz bulunmamaktadır.</p>
                 ) : (
                   <div className="appointments-list">
-                    {benimRandevularim.map(randevu => (
+                    {benimRandevularim?.map(randevu => (
                       <div key={randevu.RandevuID} className="appointment-card">
                         <div className="appt-info">
                           <h3>{randevu.BolumAdi} - {randevu.Unvan} {randevu.DAd} {randevu.DSoyad}</h3>
@@ -681,7 +681,7 @@ export default function App() {
                           <label>Bölüm</label>
                           <select value={yeniDoktor.bolumId} onChange={e => setYeniDoktor({ ...yeniDoktor, bolumId: e.target.value })} onClick={fetchBolumler} required>
                             <option value="">Önce tıklayıp bölüm seçiniz...</option>
-                            {bolumler.map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
+                            {bolumler?.map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
                           </select>
                         </div>
                         <button type="submit" className="submit-btn admin-submit-btn">Sisteme Ekle</button>
@@ -690,7 +690,7 @@ export default function App() {
                     <div className="section-card" style={{ flex: "1.5", minWidth: "350px" }}>
                       <h3>Mevcut Doktorlar</h3>
                       <div className="appointments-list">
-                        {doktorlar.map(dr => (
+                        {doktorlar?.map(dr => (
                           <div key={dr.DoktorID} className="appointment-card" style={{ borderLeftColor: "#111" }}>
                             <div className="appt-info">
                               <h3 style={{ margin: 0, color: "#111" }}>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h3>
@@ -720,7 +720,7 @@ export default function App() {
                       <p>Verileri çekmek için Yenile butonuna basın veya sistemde hiç randevu yok.</p>
                     ) : (
                       <div className="appointments-list">
-                        {tumRandevular.map(r => (
+                        {tumRandevular?.map(r => (
                           <div key={r.RandevuID} className="appointment-card" style={{ borderLeftColor: r.Durum === "Bekliyor" ? "#ffc107" : r.Durum === "Onaylandi" ? "#28a745" : "#dc3545" }}>
                             <div className="appt-info" style={{ flex: 1 }}>
                               <h3 style={{ color: "#111", fontSize: "16px" }}>🧑 Hasta: {r.HAd} {r.HSoyad} (TC: {r.TCno})</h3>
