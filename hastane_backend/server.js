@@ -103,7 +103,7 @@ app.post("/admin-giris", (req, res) => {
 // --- GET: DOKTORLAR ---
 app.get("/doktorlar", (req, res) => {
   const sql = `SELECT D.DoktorID, D.DAd, D.DSoyad, D.Unvan, D.Cinsiyet, B.BolumAdi 
-               FROM DOKTOR D LEFT JOIN BOLUM B ON D.BolumID = B.BolumID`;
+               FROM doktor D LEFT JOIN BOLUM B ON D.BolumID = B.BolumID`;
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     res.json(data);
