@@ -136,7 +136,7 @@ body {
   text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.6);
 }
 
-/* --- İÇERİK KONTEYNERİ (GRID VE FORMLAR) --- */
+/* ---- İÇERİK KONTEYNERİ (GRID VE FORMLAR) ---- */
 .container {
   max-width: 900px;
   margin: 50px auto;

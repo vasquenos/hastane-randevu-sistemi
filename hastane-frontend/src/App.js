@@ -620,7 +620,7 @@ export default function App() {
           </div>
         </div>
       )}
-      
+        
       {/* ADMİN */}
       {activeTab === "admin" && (
         <div className="animate-fade-in">
