@@ -5,45 +5,66 @@ import "./App.css";
 const SLIDER_IMAGES = ["/images/hastane1.jpg", "/images/hastane2.jpg", "/images/hastane3.jpg"];
 const ANA_SAATLER = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
+// --- YARDIMCI VALİDASYON FONKSİYONLARI ---
+
+const enforceOnlyNumbers = (e) => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+};
+
+const enforceOnlyLetters = (e) => {
+  e.target.value = e.target.value.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '');
+};
+
+const validateTCKN = (tc) => {
+  if (!tc || tc.length !== 11 || tc[0] === '0') return false;
+  
+  let oddSum = 0;   
+  let evenSum = 0;  
+  
+  for (let i = 0; i < 9; i++) {
+    const digit = parseInt(tc[i]);
+    if (i % 2 === 0) oddSum += digit;
+    else evenSum += digit;
+  }
+  
+  const digit10 = (oddSum * 7 - evenSum) % 10;
+  const digit11 = (oddSum + evenSum + digit10) % 10;
+  
+  if (digit10 !== parseInt(tc[9]) || digit11 !== parseInt(tc[10])) return false;
+  
+  return true;
+};
+
+const getTodayDate = () => new Date().toISOString().split('T')[0];
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
 
-  // Form state'leri
   const [kayitForm, setKayitForm] = useState({ ad: "", soyad: "", tc: "", telefon: "", dogum: "", cinsiyet: "", sifre: "" });
   const [adminForm, setAdminForm] = useState({ kullaniciAdi: "", sifre: "" });
 
-  // Randevu sistemi
   const [doktorlar, setDoktorlar] = useState([]);
   const [randevuForm, setRandevuForm] = useState({ tc: "", doktorId: "", tarih: "", saat: "" });
   const [doluSaatler, setDoluSaatler] = useState([]);
   const [expandedHour, setExpandedHour] = useState(null);
 
-  // Hasta paneli
   const [girisYapanHasta, setGirisYapanHasta] = useState(null);
   const [hastaGirisForm, setHastaGirisForm] = useState({ tc: "", sifre: "" });
   const [benimRandevularim, setBenimRandevularim] = useState([]);
 
-  // Sayaçlar
   const [counts, setCounts] = useState({ hastalar: 0, doktorlar: 0, oduller: 0 });
-  const [hasStarted, setHasStarted] = useState(false);
 
-  // Slider
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Admin paneli
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminView, setAdminView] = useState("dashboard");
   const [bolumler, setBolumler] = useState([]);
   const [tumRandevular, setTumRandevular] = useState([]);
   const [yeniDoktor, setYeniDoktor] = useState({ ad: "", soyad: "", unvan: "", cinsiyet: "", bolumId: "" });
 
-  // --- 6. ÖZEL BİLDİRİM (TOAST) STATE'İ ---
   const [toast, setToast] = useState({ visible: false, message: "", type: "" });
-
-  // --- 7. YÜKLENİYOR (LOADING) STATE'İ ---
   const [isLoading, setIsLoading] = useState(false);
 
-  // Bildirim gösterme fonksiyonu (3 saniye sonra otomatik kapanır)
   const showToast = (message, type = "success") => {
     setToast({ visible: true, message, type });
     setTimeout(() => {
@@ -87,26 +108,17 @@ export default function App() {
   }, [randevuForm.doktorId, randevuForm.tarih]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (hasStarted) return;
-      const section = document.getElementById("stats-section");
-      if (section && section.getBoundingClientRect().top < window.innerHeight) {
-        setHasStarted(true);
-        let h = 0, d = 0, o = 0;
-        const interval = setInterval(() => {
-          if (h < 1000) h += 20;
-          if (d < 50) d += 1;
-          if (o < 25) o += 1;
-          setCounts({ hastalar: h, doktorlar: d, oduller: o });
-          if (h >= 1000 && d >= 50 && o >= 25) clearInterval(interval);
-        }, 30);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasStarted]);
+    let h = 0, d = 0, o = 0;
+    const interval = setInterval(() => {
+      if (h < 1000) h += 20;
+      if (d < 50) d += 1;
+      if (o < 25) o += 1;
+      setCounts({ hastalar: h, doktorlar: d, oduller: o });
+      if (h >= 1000 && d >= 50 && o >= 25) clearInterval(interval);
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
 
-  // --- OTURUM KONTROLÜ (LOCAL STORAGE) ---
   useEffect(() => {
     const kayitliHasta = localStorage.getItem("hasta");
     const hastaToken = localStorage.getItem("hastaToken");
@@ -114,6 +126,7 @@ export default function App() {
     if (kayitliHasta && hastaToken) {
       const parsedHasta = JSON.parse(kayitliHasta);
       setGirisYapanHasta(parsedHasta);
+      setRandevuForm(f => ({ ...f, tc: parsedHasta.TCno }));
       fetchRandevularim(parsedHasta.HastaID);
     }
 
@@ -122,6 +135,15 @@ export default function App() {
       setIsAdminLoggedIn(true);
     }
   }, []);
+
+  const handleTabChange = (key) => {
+    if (key === "randevu" && !girisYapanHasta) {
+      showToast("Randevu oluşturmak için önce hasta girişi yapmalısınız.", "error");
+      setActiveTab("randevularim"); 
+    } else {
+      setActiveTab(key);
+    }
+  };
 
   // --- ADMİN VERİ FONKSİYONLARI ---
 
@@ -204,10 +226,17 @@ export default function App() {
 
   const handleKayitSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateTCKN(kayitForm.tc)) {
+      showToast("Geçersiz T.C. Kimlik Numarası! Lütfen kontrol ediniz.", "error");
+      return;
+    }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/kayit`, kayitForm);
       showToast(response.data.mesaj, "success"); 
       setKayitForm({ ad: "", soyad: "", tc: "", telefon: "", dogum: "", cinsiyet: "", sifre: "" }); 
+      setActiveTab("randevularim"); 
     } catch (error) {
       showToast(error.response?.data?.mesaj || "Kayıt sırasında bir hata oluştu.", "error"); 
     }
@@ -215,6 +244,13 @@ export default function App() {
 
   const handleRandevuSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!girisYapanHasta) {
+      showToast("Randevu almak için giriş yapmalısınız.", "error");
+      setActiveTab("randevularim");
+      return;
+    }
+
     const secilenSaat = randevuForm.saat;
     if (secilenSaat < "09:00" || secilenSaat > "16:50") {
       showToast("Lütfen mesai saatleri içerisinde (09:00 - 16:50) bir saat seçiniz.", "error");
@@ -223,7 +259,7 @@ export default function App() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/randevu`, randevuForm);
       showToast(response.data.mesaj, "success");
-      setRandevuForm({ tc: "", doktorId: "", tarih: "", saat: "" });
+      setRandevuForm(f => ({ ...f, doktorId: "", tarih: "", saat: "" }));
       setDoluSaatler([...doluSaatler, secilenSaat]); 
     } catch (error) {
       showToast(error.response?.data?.mesaj || "Randevu alınırken bir hata oluştu.", "error");
@@ -235,14 +271,20 @@ export default function App() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/hasta-giris`, hastaGirisForm);
       if (response.data.basarili) {
-        setGirisYapanHasta(response.data.hasta);
+        const hastaVerisi = response.data.hasta;
+        setGirisYapanHasta(hastaVerisi);
         localStorage.setItem("hastaToken", response.data.token);
-        localStorage.setItem("hasta", JSON.stringify(response.data.hasta));
-        fetchRandevularim(response.data.hasta.HastaID);
+        localStorage.setItem("hasta", JSON.stringify(hastaVerisi));
+        
+        setRandevuForm(f => ({ ...f, tc: hastaVerisi.TCno }));
+        fetchRandevularim(hastaVerisi.HastaID);
+        
+        setHastaGirisForm({ tc: "", sifre: "" });
         showToast(response.data.mesaj, "success"); 
+        setActiveTab("home"); 
       }
     } catch (error) {
-      showToast(error.response?.data?.mesaj || "Giriş yapılamadı.", "error"); 
+      showToast(error.response?.data?.mesaj || "Giriş yapılamadı. T.C. veya şifre hatalı.", "error"); 
     }
   };
 
@@ -259,6 +301,9 @@ export default function App() {
   };
 
   const handleDurumDegistir = async (randevuId, yeniDurum) => {
+    const islem = yeniDurum === "Onaylandi" ? "onaylamak" : "iptal etmek";
+    if (!window.confirm(`Bu randevuyu ${islem} istediğinize emin misiniz?`)) return;
+
     try {
       const response = await axios.put(`${process.env.REACT_APP_API_URL}/randevu-durum`, {
         randevuId: randevuId,
@@ -272,6 +317,16 @@ export default function App() {
     }
   };
 
+  const handleHastaCikis = () => {
+    setGirisYapanHasta(null); 
+    setBenimRandevularim([]);
+    setRandevuForm({ tc: "", doktorId: "", tarih: "", saat: "" });
+    localStorage.removeItem("hastaToken"); 
+    localStorage.removeItem("hasta"); 
+    showToast("Başarıyla çıkış yapıldı.", "success");
+    setActiveTab("home");
+  };
+
   // --- SAAT YARDIMCI FONKSİYONLARI ---
 
   const getAltSaatler = (anaSaat) => {
@@ -282,55 +337,6 @@ export default function App() {
   const isAnaSaatTamamenDolu = (anaSaat) =>
     getAltSaatler(anaSaat).every(alt => (doluSaatler || []).includes(alt));
 
-  // --- BİLEŞENLER ---
-
-  const Navbar = () => (
-    <nav className="navbar">
-      <div className="logo">Hastane Randevu</div>
-      <div className="nav-links">
-        {[
-          { key: "home", label: "Ana Sayfa" },
-          { key: "hakkimizda", label: "Hakkımızda" },
-          { key: "randevu", label: "Randevu Al" },
-          { key: "kayit", label: "Hasta Kaydı" },
-          { key: "randevularim", label: "Randevularım" },
-          { key: "admin", label: "Admin Girişi" },
-        ].map(({ key, label }) => (
-          <button key={key} className={`nav-btn ${activeTab === key ? "active" : ""}`} onClick={() => setActiveTab(key)}>
-            {label}
-          </button>
-        ))}
-      </div>
-    </nav>
-  );
-
-  const Footer = () => (
-    <footer className="footer animate-fade-in">
-      <div className="footer-content">
-        <div className="footer-section brand">
-          <h2>Hastane Randevu</h2>
-          <p>Modern altyapımız ve uzman kadromuzla sağlığınız için en yenilikçi çözümleri sunuyoruz. Saniyeler içinde randevunuzu alın, sağlığınızı ertelemeyin.</p>
-        </div>
-        <div className="footer-section links">
-          <h4>Hızlı Menü</h4>
-          <ul>
-            {[["home", "Ana Sayfa"], ["hakkimizda", "Hakkımızda"], ["randevu", "Randevu Al"], ["kayit", "Hasta Kaydı"]].map(([key, label]) => (
-              <li key={key}><button onClick={() => setActiveTab(key)}>{label}</button></li>
-            ))}
-          </ul>
-        </div>
-        <div className="footer-section contact">
-          <h4>İletişim</h4>
-          <p>📍 Yenişehir Mah. Sağlık Bulvarı No: 4</p>
-          <p>📞 0850 123 45 67</p>
-          <p>✉️ bilgi@hastanerandevu.com</p>
-        </div>
-      </div>
-      <div className="footer-bottom">
-        <p>&copy; 2026 Hastane Randevu Sistemi. Tüm hakları saklıdır. | Sistem Tasarımı ve Geliştirme: Efekan Tanrıkulu, Numan Yıldız</p>
-      </div>
-    </footer>
-  );
   
   return (
     <div>
@@ -348,26 +354,53 @@ export default function App() {
       {isLoading && (
         <div className="global-loader">
           <div className="spinner"></div>
-          <p>Veriler işleniyor...</p>
+          <p>Veriler işleniyor, lütfen bekleyiniz...</p>
         </div>
       )}
 
-      <Navbar />
+      {/* NAVBAR (DİREKT JSX OLARAK GÖMÜLDÜ) */}
+      <nav className="navbar">
+        <div className="logo" onClick={() => handleTabChange("home")} style={{cursor: 'pointer'}}>
+          Hastane Randevu
+        </div>
+        <div className="nav-links">
+          {[
+            { key: "home", label: "Ana Sayfa" },
+            { key: "hakkimizda", label: "Hakkımızda" },
+            { key: "randevu", label: "Randevu Al" },
+            { key: "kayit", label: "Hasta Kaydı" },
+            { key: "randevularim", label: girisYapanHasta ? "Panelim" : "Giriş Yap" },
+            { key: "admin", label: "🔒 Admin" },
+          ].map(({ key, label }) => (
+            <button key={key} className={`nav-btn ${activeTab === key ? "active" : ""}`} onClick={() => handleTabChange(key)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* ANA SAYFA */}
       {activeTab === "home" && (
         <div className="animate-fade-in">
-          <div
-            className="hero-section"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${SLIDER_IMAGES[currentImageIndex]})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              transition: "background-image 1s ease-in-out",
-            }}
-          >
-            <h1>Sağlığınız İçin Yenilikçi Çözümler</h1>
-            <p>Alanında uzman doktorlarımız ve modern altyapımızla güvenilir sağlık hizmeti sunuyoruz.</p>
+          <div className="hero-section">
+            {/* YUMUŞAK GEÇİŞ İÇİN SLIDER RESİMLERİ KATMANLARI */}
+            {SLIDER_IMAGES.map((img, index) => (
+              <div
+                key={index}
+                className="slider-bg"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${img})`,
+                  opacity: currentImageIndex === index ? 1 : 0
+                }}
+              />
+            ))}
+            <div className="hero-content">
+              <h1>Sağlığınız İçin Yenilikçi Çözümler</h1>
+              <p>Alanında uzman doktorlarımız ve modern altyapımızla güvenilir sağlık hizmeti sunuyoruz.</p>
+              {!girisYapanHasta && (
+                  <button className="submit-btn" style={{width: 'auto', marginTop: '20px', padding: '15px 30px'}} onClick={() => handleTabChange("kayit")}>Hemen Kayıt Ol</button>
+              )}
+            </div>
           </div>
 
           <div id="stats-section" className="stats-container">
@@ -403,7 +436,7 @@ export default function App() {
         <div className="container animate-fade-in">
           <div className="section-card">
             <h2>Hakkımızda</h2>
-            <p>Hastane Randevu Sistemi olarak, hastalarımızın tedavi süreçlerini hızlandırmak ve randevu karmaşasını ortadan kaldırmak için en güncel teknolojileri kullanıyoruz. Uzman doktor kadromuz ile hizmetinizdeyiz.</p>
+            <p>Hastane Randevu Sistemi olarak, hastalarımızın tedavi süreçlerini hızlandırmak ve randevu karmaşasını ortadan kaldırmak için en güncel teknolojileri kullanıyoruz. Uzman doktor kadromuz ve tam donanımlı hastanemizle 7/24 hizmetinizdeyiz. Sağlığınız bizim için değerlidir.</p>
           </div>
         </div>
       )}
@@ -413,29 +446,30 @@ export default function App() {
         <div className="container animate-fade-in">
           <div className="section-card">
             <h2>Yeni Hasta Kaydı</h2>
+            <p style={{color: '#666', marginBottom: '20px'}}>Sisteme kayıt olarak anında randevu alabilirsiniz.</p>
             <form onSubmit={handleKayitSubmit}>
               <div style={{ display: "flex", gap: "20px" }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>Ad</label>
-                  <input type="text" value={kayitForm.ad} onChange={e => setKayitForm({ ...kayitForm, ad: e.target.value })} placeholder="Adınız" required />
+                  <input type="text" value={kayitForm.ad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, ad: e.target.value })} placeholder="Adınız" required />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>Soyad</label>
-                  <input type="text" value={kayitForm.soyad} onChange={e => setKayitForm({ ...kayitForm, soyad: e.target.value })} placeholder="Soyadınız" required />
+                  <input type="text" value={kayitForm.soyad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, soyad: e.target.value })} placeholder="Soyadınız" required />
                 </div>
               </div>
               <div className="form-group">
-                <label>T.C. KİMLİK NO (11 Hane)</label>
-                <input type="text" maxLength="11" value={kayitForm.tc} onChange={e => setKayitForm({ ...kayitForm, tc: e.target.value })} placeholder="12345678901" required />
+                <label>T.C. KİMLİK NO (11 Hane Zorunlu)</label>
+                <input type="text" maxLength="11" pattern="\d{11}" title="T.C. Kimlik Numarası 11 haneli olmalıdır." value={kayitForm.tc} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, tc: e.target.value })} placeholder="12345678901" required />
               </div>
               <div className="form-group">
-                <label>Telefon</label>
-                <input type="text" value={kayitForm.telefon} onChange={e => setKayitForm({ ...kayitForm, telefon: e.target.value })} placeholder="05XX XXX XX XX" required />
+                <label>Telefon (05xx...)</label>
+                <input type="text" maxLength="11" value={kayitForm.telefon} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, telefon: e.target.value })} placeholder="05XX XXX XX XX" required />
               </div>
               <div style={{ display: "flex", gap: "20px" }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>DOĞUM TARİHİ</label>
-                  <input type="date" value={kayitForm.dogum} onChange={e => setKayitForm({ ...kayitForm, dogum: e.target.value })} required />
+                  <input type="date" max={getTodayDate()} value={kayitForm.dogum} onChange={e => setKayitForm({ ...kayitForm, dogum: e.target.value })} required />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>CİNSİYET</label>
@@ -447,24 +481,24 @@ export default function App() {
                 </div>
               </div>
               <div className="form-group">
-                <label>ŞİFRE BELİRLEYİN</label>
-                <input type="password" value={kayitForm.sifre} onChange={e => setKayitForm({ ...kayitForm, sifre: e.target.value })} required />
+                <label>ŞİFRE BELİRLEYİN (Min. 6 Karakter)</label>
+                <input type="password" minLength="6" value={kayitForm.sifre} onChange={e => setKayitForm({ ...kayitForm, sifre: e.target.value })} required />
               </div>
-              <button type="submit" className="submit-btn">Kayıt Ol</button>
+              <button type="submit" className="submit-btn">Kayıt İşlemini Tamamla</button>
             </form>
           </div>
         </div>
       )}
 
       {/* RANDEVU AL */}
-      {activeTab === "randevu" && (
+      {activeTab === "randevu" && girisYapanHasta && (
         <div className="container animate-fade-in">
           <div className="section-card">
             <h2>Randevu Oluştur</h2>
             <form onSubmit={handleRandevuSubmit}>
               <div className="form-group">
                 <label>T.C. KİMLİK NUMARASI</label>
-                <input type="text" maxLength="11" value={randevuForm.tc} onChange={e => setRandevuForm({ ...randevuForm, tc: e.target.value })} placeholder="Kayıtlı T.C. Kimlik Numaranız" required />
+                <input type="text" value={randevuForm.tc} readOnly style={{backgroundColor: '#e9ecef', cursor: 'not-allowed'}} />
               </div>
               <div className="form-group">
                 <label>BÖLÜM ve DOKTOR SEÇİMİ</label>
@@ -477,7 +511,7 @@ export default function App() {
               </div>
               <div className="form-group">
                 <label>RANDEVU TARİHİ</label>
-                <input type="date" value={randevuForm.tarih} onChange={e => setRandevuForm({ ...randevuForm, tarih: e.target.value })} required />
+                <input type="date" min={getTodayDate()} value={randevuForm.tarih} onChange={e => setRandevuForm({ ...randevuForm, tarih: e.target.value })} required />
               </div>
 
               {randevuForm.doktorId && randevuForm.tarih && (
@@ -520,44 +554,44 @@ export default function App() {
                   </div>
                 </div>
               )}
-              <button type="submit" className="submit-btn" disabled={!randevuForm.saat}>Randevuyu Onayla</button>
+              <button type="submit" className="submit-btn" disabled={!randevuForm.saat}>Randevuyu Onayla ve Kaydet</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* RANDEVULARIM */}
+      {/* RANDEVULARIM / HASTA GİRİŞİ */}
       {activeTab === "randevularim" && (
         <div className="container animate-fade-in">
           <div className="section-card">
             {!girisYapanHasta ? (
               <div style={{ maxWidth: "400px", margin: "0 auto" }}>
                 <h2>Hasta Girişi</h2>
-                <p style={{ marginBottom: "20px", color: "#666" }}>Randevularınızı görmek ve onaylamak için giriş yapın.</p>
+                <p style={{ marginBottom: "20px", color: "#666" }}>Randevularınızı yönetmek için T.C. Kimlik numaranız ve şifrenizle giriş yapın.</p>
                 <form onSubmit={handleHastaGirisSubmit}>
                   <div className="form-group">
                     <label>T.C. KİMLİK NUMARANIZ</label>
-                    <input type="text" maxLength="11" value={hastaGirisForm.tc} onChange={e => setHastaGirisForm({ ...hastaGirisForm, tc: e.target.value })} required />
+                    <input type="text" maxLength="11" value={hastaGirisForm.tc} onInput={enforceOnlyNumbers} onChange={e => setHastaGirisForm({ ...hastaGirisForm, tc: e.target.value })} placeholder="11 Haneli TC No" required />
                   </div>
                   <div className="form-group">
                     <label>ŞİFRENİZ</label>
-                    <input type="password" value={hastaGirisForm.sifre} onChange={e => setHastaGirisForm({ ...hastaGirisForm, sifre: e.target.value })} required />
+                    <input type="password" value={hastaGirisForm.sifre} onChange={e => setHastaGirisForm({ ...hastaGirisForm, sifre: e.target.value })} placeholder="Şifrenizi girin" required />
                   </div>
-                  <button type="submit" className="submit-btn">Giriş Yap</button>
+                  <button type="submit" className="submit-btn">Sisteme Giriş Yap</button>
+                  <p style={{marginTop: '15px', textAlign: 'center', color: '#666'}}>Hesabınız yok mu? <button type="button" className="text-btn" onClick={() => handleTabChange("kayit")}>Hemen kayıt olun.</button></p>
                 </form>
               </div>
             ) : (
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #280f42", paddingBottom: "10px", marginBottom: "20px" }}>
-                  <h2 style={{ border: "none", margin: 0, padding: 0 }}>Randevularım</h2>
-                 <button onClick={() => { 
-                    setGirisYapanHasta(null); 
-                    localStorage.removeItem("hastaToken"); 
-                    localStorage.removeItem("hasta"); 
-                  }} className="nav-btn" style={{ backgroundColor: "#e1e8ed" }}>Çıkış Yap</button>
+                  <h2 style={{ border: "none", margin: 0, padding: 0 }}>Hoş Geldiniz, {girisYapanHasta.HastaAd} {girisYapanHasta.HastaSoyad}</h2>
+                 <button onClick={handleHastaCikis} className="nav-btn cancel-btn" style={{ backgroundColor: "#dc3545", color: 'white' }}>Güvenli Çıkış</button>
                 </div>
+                
+                <h3 style={{marginBottom: '15px'}}>Randevularım</h3>
+
                 {benimRandevularim.length === 0 ? (
-                  <p>Henüz alınmış bir randevunuz bulunmamaktadır.</p>
+                  <p>Henüz alınmış bir randevunuz bulunmamaktadır. <button type="button" className="text-btn" onClick={() => handleTabChange("randevu")}>Hemen randevu alın.</button></p>
                 ) : (
                   <div className="appointments-list">
                     {(benimRandevularim || []).map(randevu => (
@@ -595,25 +629,24 @@ export default function App() {
               <div className="admin-login-card">
                 <div className="admin-header">
                   <span className="admin-icon">🔒</span>
-                  <h2>Yönetici Paneli</h2>
-                  <p>Sistemi yönetmek için yetkili kimliğinizle giriş yapın.</p>
+                  <h2>Yönetici Paneli Girişi</h2>
+                  <p>Sistem yönetimi için yetkili kullanıcı adı ve şifrenizi giriniz.</p>
                 </div>
                 <form onSubmit={handleAdminSubmit} className="admin-form">
                   <div className="form-group">
                     <label>Kullanıcı Adı</label>
-                    <input type="text" value={adminForm.kullaniciAdi} onChange={e => setAdminForm({ ...adminForm, kullaniciAdi: e.target.value })} placeholder="Kullanıcı adınızı girin" required />
+                    <input type="text" value={adminForm.kullaniciAdi} onChange={e => setAdminForm({ ...adminForm, kullaniciAdi: e.target.value })} placeholder="Kullanıcı adınız" required />
                   </div>
                   <div className="form-group">
                     <label>Şifre</label>
                     <input type="password" value={adminForm.sifre} onChange={e => setAdminForm({ ...adminForm, sifre: e.target.value })} placeholder="••••••••" required />
                   </div>
-                  <button type="submit" className="submit-btn admin-submit-btn">Sisteme Giriş Yap</button>
+                  <button type="submit" className="submit-btn admin-submit-btn">Panele Giriş Yap</button>
                 </form>
               </div>
             </div>
           ) : (
             <div className="container animate-fade-in" style={{ maxWidth: "1000px", marginTop: "60px" }}>
-
               {/* DASHBOARD */}
               {adminView === "dashboard" && (
                 <div>
@@ -623,21 +656,22 @@ export default function App() {
                       setIsAdminLoggedIn(false); 
                       setAdminView("dashboard"); 
                       localStorage.removeItem("adminToken"); 
+                      showToast("Admin çıkışı yapıldı.", "success");
                     }} style={{ background: "#dc3545", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", cursor: "pointer" }}>
-                      Sistemden Çıkış Yap
+                      Güvenli Çıkış
                     </button>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px" }}>
                     <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
                       <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>👨‍⚕️</h1>
                       <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Doktor Yönetimi</h3>
-                      <p style={{ color: "#666", marginBottom: "25px" }}>Sisteme yeni doktor ekleyin veya mevcut doktorları sistemden çıkarın.</p>
+                      <p style={{ color: "#666", marginBottom: "25px" }}>Sisteme yeni doktor ekleyin veya mevcut doktorları yönetin.</p>
                       <button onClick={() => setAdminView("doktorlar")} className="submit-btn admin-submit-btn">Doktorları Yönet</button>
                     </div>
                     <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
                       <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>📅</h1>
                       <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Randevu İşlemleri</h3>
-                      <p style={{ color: "#666", marginBottom: "25px" }}>Sistemdeki tüm randevuları görüntüleyin, onaylayın veya iptal edin.</p>
+                      <p style={{ color: "#666", marginBottom: "25px" }}>Sistemdeki tüm randevuları görüntüleyin ve durumlarını yönetin.</p>
                       <button onClick={() => setAdminView("randevular")} className="submit-btn admin-submit-btn">Randevuları Görüntüle</button>
                     </div>
                   </div>
@@ -655,10 +689,19 @@ export default function App() {
                     <div className="section-card" style={{ flex: "1", minWidth: "300px" }}>
                       <h3>Yeni Doktor Ekle</h3>
                       <form onSubmit={handleDoktorEkle}>
-                        <div className="form-group"><label>Ad</label><input type="text" value={yeniDoktor.ad} onChange={e => setYeniDoktor({ ...yeniDoktor, ad: e.target.value })} required /></div>
-                        <div className="form-group"><label>Soyad</label><input type="text" value={yeniDoktor.soyad} onChange={e => setYeniDoktor({ ...yeniDoktor, soyad: e.target.value })} required /></div>
+                        <div className="form-group">
+                            <label>Ad</label>
+                            <input type="text" value={yeniDoktor.ad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, ad: e.target.value })} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Soyad</label>
+                            <input type="text" value={yeniDoktor.soyad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, soyad: e.target.value })} required />
+                        </div>
                         <div style={{ display: "flex", gap: "15px" }}>
-                          <div className="form-group" style={{ flex: 1 }}><label>Ünvan</label><input type="text" placeholder="Örn: Prof. Dr." value={yeniDoktor.unvan} onChange={e => setYeniDoktor({ ...yeniDoktor, unvan: e.target.value })} required /></div>
+                          <div className="form-group" style={{ flex: 1 }}>
+                            <label>Ünvan</label>
+                            <input type="text" placeholder="Örn: Prof. Dr." pattern=".{2,}" title="Minimum 2 karakter" value={yeniDoktor.unvan} onChange={e => setYeniDoktor({ ...yeniDoktor, unvan: e.target.value })} required />
+                           </div>
                           <div className="form-group" style={{ flex: 1 }}>
                             <label>Cinsiyet</label>
                             <select value={yeniDoktor.cinsiyet} onChange={e => setYeniDoktor({ ...yeniDoktor, cinsiyet: e.target.value })} required>
@@ -675,11 +718,11 @@ export default function App() {
                             {(bolumler || []).map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
                           </select>
                         </div>
-                        <button type="submit" className="submit-btn admin-submit-btn">Sisteme Ekle</button>
+                        <button type="submit" className="submit-btn admin-submit-btn">Doktoru Sisteme Ekle</button>
                       </form>
                     </div>
                     <div className="section-card" style={{ flex: "1.5", minWidth: "350px" }}>
-                      <h3>Mevcut Doktorlar</h3>
+                      <h3>Mevcut Doktorlar ({doktorlar.length})</h3>
                       <div className="appointments-list">
                         {(doktorlar || []).map(dr => (
                           <div key={dr.DoktorID} className="appointment-card" style={{ borderLeftColor: "#111" }}>
@@ -702,13 +745,13 @@ export default function App() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                     <h2 style={{ color: "#111", margin: 0 }}>Sistemdeki Tüm Randevular</h2>
                     <div style={{ display: "flex", gap: "10px" }}>
-                      <button onClick={fetchTumRandevular} className="submit-btn" style={{ margin: 0, padding: "10px 20px", width: "auto" }}>🔄 Yenile</button>
+                      <button onClick={fetchTumRandevular} className="submit-btn" style={{ margin: 0, padding: "10px 20px", width: "auto" }}>🔄 Verileri Yenile</button>
                       <button onClick={() => setAdminView("dashboard")} className="btn-secondary" style={{ color: "#111", border: "2px solid #111", borderRadius: "10px" }}>← Panele Dön</button>
                     </div>
                   </div>
                   <div className="section-card">
                     {tumRandevular.length === 0 ? (
-                      <p>Verileri çekmek için Yenile butonuna basın veya sistemde hiç randevu yok.</p>
+                      <p>Verileri çekmek için Yenile butonuna basın veya sistemde aktif randevu bulunmamaktadır.</p>
                     ) : (
                       <div className="appointments-list">
                         {(tumRandevular || []).map(r => (
@@ -723,7 +766,7 @@ export default function App() {
                               {r.Durum === "Bekliyor" && (
                                 <div style={{ display: "flex", gap: "5px" }}>
                                   <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Onaylandi")} className="btn-approve">✔ Onayla</button>
-                                  <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Iptal")} className="btn-cancel">✖ İptal Et</button>
+                                  <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Iptal")} className="btn-cancel">✖ İptal</button>
                                 </div>
                               )}
                             </div>
@@ -740,7 +783,38 @@ export default function App() {
         </div>
       )}
 
-      <Footer />
+      {/* FOOTER (DİREKT JSX OLARAK GÖMÜLDÜ - ANİMASYON KALDIRILDI) */}
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-section brand">
+            <h2>Hastane Randevu</h2>
+            <p>Modern altyapımız ve uzman kadromuzla sağlığınız için en yenilikçi çözümleri sunuyoruz. Saniyeler içinde randevunuzu alın, sağlığınızı ertelemeyin.</p>
+          </div>
+          <div className="footer-section links">
+            <h4>Hızlı Menü</h4>
+            <ul>
+              {[["home", "Ana Sayfa"], ["hakkimizda", "Hakkımızda"], ["randevu", "Randevu Al"], ["kayit", "Hasta Kaydı"]].map(([key, label]) => (
+                <li key={key}><button onClick={() => handleTabChange(key)}>{label}</button></li>
+              ))}
+            </ul>
+          </div>
+          <div className="footer-section contact">
+            <h4>İletişim</h4>
+            <p>
+              <a href="https://maps.google.com/?q=Yenişehir+Mah.+Sağlık+Bulvarı+No:+4" target="_blank" rel="noopener noreferrer">
+                📍 Yenişehir Mah. Sağlık Bulvarı No: 4
+              </a>
+            </p>
+            <p>📞 0850 123 45 67</p>
+            <p>
+              <a href="mailto:bilgi@hastanerandevu.com">✉️ bilgi@hastanerandevu.com</a>
+            </p>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; 2026 Hastane Randevu Sistemi. Tüm hakları saklıdır. | Sistem Tasarımı ve Geliştirme: Efekan Tanrıkulu, Numan Yıldız</p>
+        </div>
+      </footer>
     </div>
   );
 }
