@@ -911,3 +911,17 @@ body {
     padding: 0 20px 20px 20px;
   }
 }
+/* =========================================
+   FOOTER'I EN ALTA SABİTLEME (FLEXBOX)
+   ========================================= */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Sayfanın en az tam ekran yüksekliğinde olmasını sağlar */
+}
+
+.main-content {
+  flex: 1; /* İçerik kısa olsa bile boşluğu doldurarak footer'ı en aşağı iter */
+  display: flex;
+  flex-direction: column;
+}

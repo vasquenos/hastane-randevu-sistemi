@@ -393,7 +393,7 @@ export default function App() {
 
   
   return (
-    <div>
+    <div className="app-wrapper">
       {/* --- ÖZEL BİLDİRİM BALONCUĞU --- */}
       {toast.visible && (
         <div className={`custom-toast toast-${toast.type} animate-slide-down`}>
@@ -452,7 +452,8 @@ export default function App() {
           </button>
         </div>
       </nav>
-
+      {/* --- YENİ ESNEME KUTUMUZ BAŞLIYOR --- */}
+      <main className="main-content"></main>
       {/* ANA SAYFA */}
       {activeTab === "home" && (
         <div className="animate-fade-in">
@@ -880,7 +881,7 @@ export default function App() {
           )}
         </div>
       )}
-
+  </main>
       {/* FOOTER - Admin girişi buraya taşındı */}
       <footer className="footer">
         <div className="footer-content">
