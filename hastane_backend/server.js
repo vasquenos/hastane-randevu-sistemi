@@ -144,7 +144,7 @@ app.post("/randevu", (req, res) => {
       db.query(insertRandevuSql, [tarih, saat, hastaId, doktorId], (err2) => {
         if (err2) return db.rollback(() => res.status(400).json({ mesaj: "Randevu oluşturulamadı: " + err2.message }));
 
-        const insertLogSql = "INSERT INTO LOG_KAYIT (IslemTipi, Aciklama) VALUES (?, ?)";
+        const insertLogSql = "INSERT INTO log_kayit (IslemTipi, Aciklama) VALUES (?, ?)";
         const logAciklama = `Yeni randevu. HastaID:${hastaId} DoktorID:${doktorId} Tarih:${tarih} Saat:${saat}`;
         
         db.query(insertLogSql, ['TRANSACTION', logAciklama], (err3) => {
