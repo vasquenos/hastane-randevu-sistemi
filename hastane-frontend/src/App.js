@@ -57,7 +57,7 @@ export default function App() {
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/doktorlar`)
-      .then(res => setDoktorlar(res.data))
+      .then(res => setDoktorlar(Array.isArray(res.data) ? res.data : []))
       .catch(err => console.log(err));
   }, []);
 
@@ -108,30 +108,27 @@ export default function App() {
 
   // --- OTURUM KONTROLÜ (LOCAL STORAGE) ---
   useEffect(() => {
-    // 1. Hasta kontrolü
     const kayitliHasta = localStorage.getItem("hasta");
     const hastaToken = localStorage.getItem("hastaToken");
     
     if (kayitliHasta && hastaToken) {
       const parsedHasta = JSON.parse(kayitliHasta);
       setGirisYapanHasta(parsedHasta);
-      // Geçmiş randevularını da getir
       fetchRandevularim(parsedHasta.HastaID);
     }
 
-    // 2. Admin kontrolü
     const adminToken = localStorage.getItem("adminToken");
     if (adminToken) {
       setIsAdminLoggedIn(true);
     }
-  }, []); // Boş dizi, sadece sayfa ilk açıldığında çalışır
+  }, []);
 
   // --- ADMİN VERİ FONKSİYONLARI ---
 
   const fetchBolumler = async () => {
     try { 
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/bolumler`); 
-      setBolumler(res.data); 
+      setBolumler(Array.isArray(res.data) ? res.data : []); 
     } catch {}
   };
 
@@ -139,7 +136,7 @@ export default function App() {
     setIsLoading(true); 
     try { 
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/tum-randevular`); 
-      setTumRandevular(res.data); 
+      setTumRandevular(Array.isArray(res.data) ? res.data : []); 
     } catch (err) { 
     } finally {
       setIsLoading(false); 
@@ -149,7 +146,7 @@ export default function App() {
   const refetchDoktorlar = async () => {
     try { 
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/doktorlar`); 
-      setDoktorlar(res.data); 
+      setDoktorlar(Array.isArray(res.data) ? res.data : []); 
     } catch {}
   };
 
@@ -198,8 +195,6 @@ export default function App() {
         showToast(response.data.mesaj, "success");
         setAdminForm({ kullaniciAdi: "", sifre: "" });
         setIsAdminLoggedIn(true); 
-        
-        // YENİ: Admin Biletini Tarayıcıya Kaydet
         localStorage.setItem("adminToken", response.data.token);
       }
     } catch (error) {
@@ -241,11 +236,8 @@ export default function App() {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/hasta-giris`, hastaGirisForm);
       if (response.data.basarili) {
         setGirisYapanHasta(response.data.hasta);
-        
-        // YENİ: JWT Biletini ve Hasta Bilgisini Tarayıcıya Kaydet
         localStorage.setItem("hastaToken", response.data.token);
         localStorage.setItem("hasta", JSON.stringify(response.data.hasta));
-
         fetchRandevularim(response.data.hasta.HastaID);
         showToast(response.data.mesaj, "success"); 
       }
@@ -258,7 +250,7 @@ export default function App() {
     setIsLoading(true);
     try {
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/randevularim?hastaId=${hastaId}`);
-      setBenimRandevularim(res.data);
+      setBenimRandevularim(Array.isArray(res.data) ? res.data : []);
     } catch (err) { 
       console.log("Randevular çekilemedi", err); 
     } finally {
@@ -288,7 +280,7 @@ export default function App() {
   };
 
   const isAnaSaatTamamenDolu = (anaSaat) =>
-    getAltSaatler(anaSaat).every(alt => doluSaatler.includes(alt));
+    getAltSaatler(anaSaat).every(alt => (doluSaatler || []).includes(alt));
 
   // --- BİLEŞENLER ---
 
@@ -387,7 +379,7 @@ export default function App() {
           <div className="doctor-showcase">
             <h2 className="section-title">Alanında Uzman Doktorlarımız</h2>
             <div className="doctor-grid">
-              {doktorlar.map(dr => (
+              {(doktorlar || []).map(dr => (
                 <div key={dr.DoktorID} className="doctor-card">
                   <div className="dr-image">
                     <img
@@ -449,7 +441,6 @@ export default function App() {
                   <label>CİNSİYET</label>
                   <select value={kayitForm.cinsiyet} onChange={e => setKayitForm({ ...kayitForm, cinsiyet: e.target.value })} required>
                       <option value="">Seçiniz</option>
-                      {/* "E" yerine "Erkek", "K" yerine "Kadin" gönderiyoruz */}
                       <option value="Erkek">Erkek</option>
                       <option value="Kadin">Kadın</option>
                     </select>
@@ -479,7 +470,7 @@ export default function App() {
                 <label>BÖLÜM ve DOKTOR SEÇİMİ</label>
                 <select value={randevuForm.doktorId} onChange={e => setRandevuForm({ ...randevuForm, doktorId: e.target.value })} required>
                   <option value="">Doktor Seçiniz...</option>
-                  {doktorlar.map(d => (
+                  {(doktorlar || []).map(d => (
                     <option key={d.DoktorID} value={d.DoktorID}>{d.BolumAdi} - {d.Unvan} {d.DAd} {d.DSoyad}</option>
                   ))}
                 </select>
@@ -508,7 +499,7 @@ export default function App() {
                           </button>
                           <div className={`sub-slots-container ${isExpanded ? "open" : ""}`}>
                             {getAltSaatler(anaSaat).map(altSaat => {
-                              const altDolu = doluSaatler.includes(altSaat);
+                              const altDolu = (doluSaatler || []).includes(altSaat);
                               const altSecili = randevuForm.saat === altSaat;
                               return (
                                 <button
@@ -569,7 +560,7 @@ export default function App() {
                   <p>Henüz alınmış bir randevunuz bulunmamaktadır.</p>
                 ) : (
                   <div className="appointments-list">
-                    {benimRandevularim.map(randevu => (
+                    {(benimRandevularim || []).map(randevu => (
                       <div key={randevu.RandevuID} className="appointment-card">
                         <div className="appt-info">
                           <h3>{randevu.BolumAdi} - {randevu.Unvan} {randevu.DAd} {randevu.DSoyad}</h3>
@@ -681,7 +672,7 @@ export default function App() {
                           <label>Bölüm</label>
                           <select value={yeniDoktor.bolumId} onChange={e => setYeniDoktor({ ...yeniDoktor, bolumId: e.target.value })} onClick={fetchBolumler} required>
                             <option value="">Önce tıklayıp bölüm seçiniz...</option>
-                            {bolumler.map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
+                            {(bolumler || []).map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
                           </select>
                         </div>
                         <button type="submit" className="submit-btn admin-submit-btn">Sisteme Ekle</button>
@@ -690,7 +681,7 @@ export default function App() {
                     <div className="section-card" style={{ flex: "1.5", minWidth: "350px" }}>
                       <h3>Mevcut Doktorlar</h3>
                       <div className="appointments-list">
-                        {doktorlar.map(dr => (
+                        {(doktorlar || []).map(dr => (
                           <div key={dr.DoktorID} className="appointment-card" style={{ borderLeftColor: "#111" }}>
                             <div className="appt-info">
                               <h3 style={{ margin: 0, color: "#111" }}>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h3>
@@ -720,7 +711,7 @@ export default function App() {
                       <p>Verileri çekmek için Yenile butonuna basın veya sistemde hiç randevu yok.</p>
                     ) : (
                       <div className="appointments-list">
-                        {tumRandevular.map(r => (
+                        {(tumRandevular || []).map(r => (
                           <div key={r.RandevuID} className="appointment-card" style={{ borderLeftColor: r.Durum === "Bekliyor" ? "#ffc107" : r.Durum === "Onaylandi" ? "#28a745" : "#dc3545" }}>
                             <div className="appt-info" style={{ flex: 1 }}>
                               <h3 style={{ color: "#111", fontSize: "16px" }}>🧑 Hasta: {r.HAd} {r.HSoyad} (TC: {r.TCno})</h3>
