@@ -10,10 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "ddiPass&",
-  database: "HastaneRandevuSistemi"
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "ddiPass&",
+  database: process.env.DB_NAME || "HastaneRandevuSistemi",
+  port: process.env.DB_PORT || 3306
 });
 
 db.connect((err) => {
