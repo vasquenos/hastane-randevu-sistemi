@@ -28,7 +28,7 @@ db.connect((err) => {
 
 // --- GET: HASTALAR ---
 app.get("/hastalar", (req, res) => {
-  db.query("SELECT * FROM HASTA", (err, data) => {
+  db.query("SELECT * FROM hasta", (err, data) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     res.json(data);
   });
@@ -39,7 +39,7 @@ app.post("/kayit", async (req, res) => {
   const { ad, soyad, tc, telefon, dogum, cinsiyet, sifre } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(sifre, 10);
-    const sql = "INSERT INTO HASTA (HAd, HSoyad, TCno, Telefon, DogumTarihi, Cinsiyet, HSifre) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO hasta (HAd, HSoyad, TCno, Telefon, DogumTarihi, Cinsiyet, HSifre) VALUES (?, ?, ?, ?, ?, ?, ?)";
     
     db.query(sql, [ad, soyad, tc, telefon, dogum, cinsiyet, hashedPassword], (err) => {
       if (err) {
@@ -57,7 +57,7 @@ app.post("/kayit", async (req, res) => {
 app.post("/hasta-giris", (req, res) => {
   const { tc, sifre } = req.body;
   
-  db.query("SELECT * FROM HASTA WHERE TCno = ?", [tc], async (err, results) => {
+  db.query("SELECT * FROM hasta WHERE TCno = ?", [tc], async (err, results) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     if (results.length === 0) return res.status(401).json({ mesaj: "Bu T.C. Kimlik Numarası sistemde bulunamadı." });
 
@@ -103,7 +103,7 @@ app.post("/admin-giris", (req, res) => {
 // --- GET: DOKTORLAR ---
 app.get("/doktorlar", (req, res) => {
   const sql = `SELECT D.DoktorID, D.DAd, D.DSoyad, D.Unvan, D.Cinsiyet, B.BolumAdi 
-               FROM doktor D LEFT JOIN BOLUM B ON D.BolumID = B.BolumID`;
+               FROM doktor D LEFT JOIN bolum B ON D.BolumID = B.BolumID`;
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     res.json(data);
@@ -115,7 +115,7 @@ app.get("/dolu-saatler", (req, res) => {
   const { doktorId, tarih } = req.query;
   if (!doktorId || !tarih) return res.json([]);
 
-  const sql = "SELECT RandevuSaati FROM RANDEVU WHERE DoktorID = ? AND RandevuTarihi = ? AND Durum != 'Iptal'";
+  const sql = "SELECT RandevuSaati FROM randevu WHERE DoktorID = ? AND RandevuTarihi = ? AND Durum != 'Iptal'";
   db.query(sql, [doktorId, tarih], (err, results) => {
     if (err) return res.json([]);
     const saatler = results.map(r => typeof r.RandevuSaati === "string" ? r.RandevuSaati.substring(0, 5) : r.RandevuSaati);
@@ -131,7 +131,7 @@ app.post("/randevu", (req, res) => {
     return res.status(400).json({ mesaj: "Sistem sadece 09:00 ile 16:50 arasında randevu kabul etmektedir!" });
   }
 
-  db.query("SELECT HastaID FROM HASTA WHERE TCno = ?", [tc], (err, hastaRes) => {
+  db.query("SELECT HastaID FROM hasta WHERE TCno = ?", [tc], (err, hastaRes) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     if (hastaRes.length === 0) return res.status(404).json({ mesaj: "Bu T.C. numarasına ait hasta bulunamadı." });
     
@@ -140,7 +140,7 @@ app.post("/randevu", (req, res) => {
     db.beginTransaction((err) => {
       if (err) return res.status(500).json({ mesaj: "İşlem başlatılamadı." });
 
-      const insertRandevuSql = "INSERT INTO RANDEVU (RandevuTarihi, RandevuSaati, Durum, HastaID, DoktorID) VALUES (?, ?, 'Bekliyor', ?, ?)";
+      const insertRandevuSql = "INSERT INTO randevu (RandevuTarihi, RandevuSaati, Durum, HastaID, DoktorID) VALUES (?, ?, 'Bekliyor', ?, ?)";
       db.query(insertRandevuSql, [tarih, saat, hastaId, doktorId], (err2) => {
         if (err2) return db.rollback(() => res.status(400).json({ mesaj: "Randevu oluşturulamadı: " + err2.message }));
 
@@ -163,7 +163,7 @@ app.post("/randevu", (req, res) => {
 // --- GET/PUT: HASTA RANDEVULARI ---
 app.get("/randevularim", (req, res) => {
   const sql = `SELECT R.RandevuID, R.RandevuTarihi, R.RandevuSaati, R.Durum, D.DAd, D.DSoyad, D.Unvan, B.BolumAdi 
-               FROM RANDEVU R JOIN DOKTOR D ON R.DoktorID = D.DoktorID JOIN BOLUM B ON D.BolumID = B.BolumID 
+               FROM randevu R JOIN doktor D ON R.DoktorID = D.DoktorID JOIN bolum B ON D.BolumID = B.BolumID 
                WHERE R.HastaID = ? ORDER BY R.RandevuTarihi DESC, R.RandevuSaati DESC`;
   db.query(sql, [req.query.hastaId], (err, results) => {
     if (err) return res.status(500).json({ mesaj: err.message });
@@ -173,7 +173,7 @@ app.get("/randevularim", (req, res) => {
 
 app.put("/randevu-durum", (req, res) => {
   const { randevuId, yeniDurum, hastaId } = req.body;
-  db.query("UPDATE RANDEVU SET Durum = ? WHERE RandevuID = ? AND HastaID = ?", [yeniDurum, randevuId, hastaId], (err) => {
+  db.query("UPDATE randevu SET Durum = ? WHERE RandevuID = ? AND HastaID = ?", [yeniDurum, randevuId, hastaId], (err) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     res.json({ mesaj: `Randevunuz başarıyla ${yeniDurum} durumuna getirildi.` });
   });
@@ -181,19 +181,19 @@ app.put("/randevu-durum", (req, res) => {
 
 // --- ADMİN İŞLEMLERİ ---
 app.get("/bolumler", (req, res) => {
-  db.query("SELECT * FROM BOLUM", (err, data) => res.json(err ? [] : data));
+  db.query("SELECT * FROM bolum", (err, data) => res.json(err ? [] : data));
 });
 
 app.post("/doktor-ekle", (req, res) => {
   const { ad, soyad, unvan, cinsiyet, bolumId } = req.body;
-  db.query("INSERT INTO DOKTOR (DAd, DSoyad, Unvan, Cinsiyet, BolumID) VALUES (?, ?, ?, ?, ?)", [ad, soyad, unvan, cinsiyet, bolumId], (err) => {
+  db.query("INSERT INTO doktor (DAd, DSoyad, Unvan, Cinsiyet, BolumID) VALUES (?, ?, ?, ?, ?)", [ad, soyad, unvan, cinsiyet, bolumId], (err) => {
     if (err) return res.status(500).json({ mesaj: "Veritabanı Hatası: " + err.message });
     res.json({ mesaj: "Doktor sisteme eklendi!" });
   });
 });
 
 app.delete("/doktor-sil/:id", (req, res) => {
-  db.query("DELETE FROM DOKTOR WHERE DoktorID = ?", [req.params.id], (err) => {
+  db.query("DELETE FROM doktor WHERE DoktorID = ?", [req.params.id], (err) => {
     if (err) return res.status(500).json({ mesaj: "Hata: Bu doktora ait randevular var." });
     res.json({ mesaj: "Doktor silindi." });
   });
@@ -201,13 +201,13 @@ app.delete("/doktor-sil/:id", (req, res) => {
 
 app.get("/tum-randevular", (req, res) => {
   const sql = `SELECT R.RandevuID, R.RandevuTarihi, R.RandevuSaati, R.Durum, H.HAd, H.HSoyad, H.TCno, D.DAd, D.DSoyad, D.Unvan, B.BolumAdi 
-               FROM RANDEVU R JOIN HASTA H ON R.HastaID = H.HastaID JOIN DOKTOR D ON R.DoktorID = D.DoktorID LEFT JOIN BOLUM B ON D.BolumID = B.BolumID 
+               FROM randevu R JOIN hasta H ON R.HastaID = H.HastaID JOIN doktor D ON R.DoktorID = D.DoktorID LEFT JOIN bolum B ON D.BolumID = B.BolumID 
                ORDER BY R.RandevuTarihi DESC, R.RandevuSaati DESC`;
   db.query(sql, (err, results) => res.json(err ? [] : results));
 });
 
 app.put("/admin-randevu-durum", (req, res) => {
-  db.query("UPDATE RANDEVU SET Durum = ? WHERE RandevuID = ?", [req.body.yeniDurum, req.body.randevuId], (err) => {
+  db.query("UPDATE randevu SET Durum = ? WHERE RandevuID = ?", [req.body.yeniDurum, req.body.randevuId], (err) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     res.json({ mesaj: `Randevu başarıyla ${req.body.yeniDurum} yapıldı.` });
   });
