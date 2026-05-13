@@ -59,7 +59,7 @@ body {
 }
 
 .nav-btn:hover, .nav-btn.active {
-  background: linear-gradient(135deg, var(--text-main) 0%, #3b4389 100%);
+  background: linear-gradient(135deg, var(--text-main) 0%, #101500c3 100%);
   color: var(--bg-main);
 }
 
@@ -220,7 +220,7 @@ body {
   width: 100%;
   padding: 18px;
   margin-top: 10px;
-  background: linear-gradient(135deg, var(--text-main) 0%, #3b4389 100%);
+  background: linear-gradient(135deg, var(--text-main) 0%, #101500c3 100%);
   color: #ffffff;
   border: none;
   border-radius: 14px;
@@ -235,7 +235,7 @@ body {
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-4px);
   box-shadow: 0 12px 25px rgba(40, 15, 66, 0.3);
-  background: linear-gradient(135deg, #3b4389 0%, var(--text-main) 100%);
+  background: linear-gradient(135deg, #101500c3 0%, var(--text-main) 100%);
 }
 
 .submit-btn:active:not(:disabled) {
@@ -323,12 +323,12 @@ body {
 .time-slot-main:hover:not(.disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(40, 15, 66, 0.25);
-  background-color: #4a2574;
+  background-color: #101500c3;
 }
 
 .time-slot-main.active {
   border-radius: 12px 12px 0 0;
-  background-color: #4a2574;
+  background-color: #101500c3;
 }
 
 .time-slot-main.disabled {
