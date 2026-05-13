@@ -86,7 +86,7 @@ app.post("/hasta-giris", (req, res) => {
 app.post("/admin-giris", (req, res) => {
   const { kullaniciAdi, sifre } = req.body;
   
-  db.query("SELECT * FROM YONETICI WHERE KullaniciAdi = ? AND YSifre = SHA2(?, 256)", [kullaniciAdi, sifre], (err, results) => {
+  db.query("SELECT * FROM yonetici WHERE KullaniciAdi = ? AND YSifre = SHA2(?, 256)", [kullaniciAdi, sifre], (err, results) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     if (results.length === 0) return res.status(401).json({ mesaj: "Hatalı kullanıcı adı veya şifre!" });
 
