@@ -882,7 +882,7 @@ export default function App() {
         </div>
       )}
   </main>
-      {/* FOOTER - Admin girişi buraya taşındı */}
+      {/* FOOTER - Admin girişi buraya taşındı. */}
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section brand">
