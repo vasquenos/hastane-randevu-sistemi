@@ -452,437 +452,442 @@ export default function App() {
           </button>
         </div>
       </nav>
-      {/* --- YENİ ESNEME KUTUMUZ BAŞLIYOR --- */}
-      <main className="main-content"></main>
-      {/* ANA SAYFA */}
-      {activeTab === "home" && (
-        <div className="animate-fade-in">
-          <div className="hero-section">
-            {SLIDER_IMAGES.map((img, index) => (
-              <div
-                key={index}
-                className="slider-bg"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${img})`,
-                  opacity: currentImageIndex === index ? 1 : 0
-                }}
-              />
-            ))}
-            <div className="hero-content">
-              <h1>Sağlığınız İçin Yenilikçi Çözümler</h1>
-              <p>Alanında uzman doktorlarımız ve modern altyapımızla güvenilir sağlık hizmeti sunuyoruz.</p>
-              {!girisYapanHasta && (
-                  <button className="submit-btn" style={{width: 'auto', marginTop: '20px', padding: '15px 30px'}} onClick={() => { setIsLoginView(false); handleTabChange("auth"); }}>Hemen Kayıt Ol</button>
-              )}
-            </div>
-          </div>
 
-          <div id="stats-section" className="stats-container">
-            <div className="stat-item"><h2>{counts.hastalar}+</h2><p>Hastalarımız</p></div>
-            <div className="stat-item"><h2>{counts.doktorlar}+</h2><p>Doktorlarımız</p></div>
-            <div className="stat-item"><h2>{counts.oduller}+</h2><p>Ödüllerimiz</p></div>
-          </div>
+      {/* --- YENİ ESNEME KUTUMUZ BAŞLIYOR (Main Content) --- */}
+      <main className="main-content">
 
-          <div className="doctor-showcase">
-            <h2 className="section-title">Alanında Uzman Doktorlarımız</h2>
-            <div className="doctor-grid">
-              {(doktorlar || []).map(dr => (
-                <div key={dr.DoktorID} className="doctor-card">
-                  <div className="dr-image">
-                    <img src={`/images/${String(dr.Cinsiyet).trim().toUpperCase() === "E" ? "erkek.png" : "kadin.png"}`} alt="Doktor" />
-                  </div>
-                  <div className="dr-info">
-                    <h4>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h4>
-                    <span>{dr.BolumAdi}</span>
-                  </div>
-                </div>
+        {/* ANA SAYFA */}
+        {activeTab === "home" && (
+          <div className="animate-fade-in">
+            <div className="hero-section">
+              {SLIDER_IMAGES.map((img, index) => (
+                <div
+                  key={index}
+                  className="slider-bg"
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${img})`,
+                    opacity: currentImageIndex === index ? 1 : 0
+                  }}
+                />
               ))}
+              <div className="hero-content">
+                <h1>Sağlığınız İçin Yenilikçi Çözümler</h1>
+                <p>Alanında uzman doktorlarımız ve modern altyapımızla güvenilir sağlık hizmeti sunuyoruz.</p>
+                {!girisYapanHasta && (
+                    <button className="submit-btn" style={{width: 'auto', marginTop: '20px', padding: '15px 30px'}} onClick={() => { setIsLoginView(false); handleTabChange("auth"); }}>Hemen Kayıt Ol</button>
+                )}
+              </div>
+            </div>
+
+            <div id="stats-section" className="stats-container">
+              <div className="stat-item"><h2>{counts.hastalar}+</h2><p>Hastalarımız</p></div>
+              <div className="stat-item"><h2>{counts.doktorlar}+</h2><p>Doktorlarımız</p></div>
+              <div className="stat-item"><h2>{counts.oduller}+</h2><p>Ödüllerimiz</p></div>
+            </div>
+
+            <div className="doctor-showcase">
+              <h2 className="section-title">Alanında Uzman Doktorlarımız</h2>
+              <div className="doctor-grid">
+                {(doktorlar || []).map(dr => (
+                  <div key={dr.DoktorID} className="doctor-card">
+                    <div className="dr-image">
+                      <img src={`/images/${String(dr.Cinsiyet).trim().toUpperCase() === "E" ? "erkek.png" : "kadin.png"}`} alt="Doktor" />
+                    </div>
+                    <div className="dr-info">
+                      <h4>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h4>
+                      <span>{dr.BolumAdi}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* HAKKIMIZDA */}
-      {activeTab === "hakkimizda" && (
-        <div className="container animate-fade-in">
-          <div className="section-card">
-            <h2>Hakkımızda</h2>
-            <p>Hastane Randevu Sistemi olarak, hastalarımızın tedavi süreçlerini hızlandırmak ve randevu karmaşasını ortadan kaldırmak için en güncel teknolojileri kullanıyoruz. Uzman doktor kadromuz ve tam donanımlı hastanemizle 7/24 hizmetinizdeyiz. Sağlığınız bizim için değerlidir.</p>
+        {/* HAKKIMIZDA */}
+        {activeTab === "hakkimizda" && (
+          <div className="container animate-fade-in">
+            <div className="section-card">
+              <h2>Hakkımızda</h2>
+              <p>Hastane Randevu Sistemi olarak, hastalarımızın tedavi süreçlerini hızlandırmak ve randevu karmaşasını ortadan kaldırmak için en güncel teknolojileri kullanıyoruz. Uzman doktor kadromuz ve tam donanımlı hastanemizle 7/24 hizmetinizdeyiz. Sağlığınız bizim için değerlidir.</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* BİRLEŞTİRİLMİŞ AUTH EKRANI (Giriş Yap / Kayıt Ol) */}
-      {activeTab === "auth" && !girisYapanHasta && (
-        <div className="container animate-fade-in">
-          <div className="section-card" style={{ maxWidth: "550px", margin: "0 auto" }}>
-            
-            {isLoginView ? (
-              // HASTA GİRİŞ FORMU
-              <div className="animate-fade-in">
-                <h2>Hasta Girişi</h2>
-                <p style={{ marginBottom: "25px", color: "#666" }}>Randevularınızı yönetmek ve yeni randevu almak için giriş yapın.</p>
-                <form onSubmit={handleHastaGirisSubmit}>
+        {/* BİRLEŞTİRİLMİŞ AUTH EKRANI (Giriş Yap / Kayıt Ol) */}
+        {activeTab === "auth" && !girisYapanHasta && (
+          <div className="container animate-fade-in">
+            <div className="section-card" style={{ maxWidth: "550px", margin: "0 auto" }}>
+              
+              {isLoginView ? (
+                // HASTA GİRİŞ FORMU
+                <div className="animate-fade-in">
+                  <h2>Hasta Girişi</h2>
+                  <p style={{ marginBottom: "25px", color: "#666" }}>Randevularınızı yönetmek ve yeni randevu almak için giriş yapın.</p>
+                  <form onSubmit={handleHastaGirisSubmit}>
+                    <div className="form-group">
+                      <label>T.C. KİMLİK NUMARANIZ</label>
+                      <input type="text" maxLength="11" value={hastaGirisForm.tc} onInput={enforceOnlyNumbers} onChange={e => setHastaGirisForm({ ...hastaGirisForm, tc: e.target.value })} placeholder="11 Haneli TC No" required />
+                    </div>
+                    <div className="form-group">
+                      <label>ŞİFRENİZ</label>
+                      <input type="password" value={hastaGirisForm.sifre} onChange={e => setHastaGirisForm({ ...hastaGirisForm, sifre: e.target.value })} placeholder="Şifrenizi girin" required />
+                    </div>
+                    <button type="submit" className="submit-btn">Sisteme Giriş Yap</button>
+                    <p style={{marginTop: '25px', textAlign: 'center', color: '#666'}}>
+                      Hesabınız yok mu? <button type="button" className="text-btn" onClick={() => setIsLoginView(false)}>Hemen kayıt olun.</button>
+                    </p>
+                  </form>
+                </div>
+              ) : (
+                // YENİ HASTA KAYDI FORMU
+                <div className="animate-fade-in">
+                  <h2>Yeni Hasta Kaydı</h2>
+                  <p style={{color: '#666', marginBottom: '25px'}}>Sisteme kayıt olarak anında randevu alabilirsiniz.</p>
+                  <form onSubmit={handleKayitSubmit}>
+                    <div style={{ display: "flex", gap: "15px" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>Ad</label>
+                        <input type="text" value={kayitForm.ad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, ad: e.target.value })} placeholder="Adınız" required />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>Soyad</label>
+                        <input type="text" value={kayitForm.soyad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, soyad: e.target.value })} placeholder="Soyadınız" required />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>T.C. KİMLİK NO (11 Hane)</label>
+                      <input type="text" maxLength="11" pattern="\d{11}" title="T.C. Kimlik Numarası 11 haneli olmalıdır." value={kayitForm.tc} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, tc: e.target.value })} placeholder="12345678901" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Telefon</label>
+                      <input type="text" maxLength="11" value={kayitForm.telefon} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, telefon: e.target.value })} placeholder="05XX XXX XX XX" required />
+                    </div>
+                    <div style={{ display: "flex", gap: "15px" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>DOĞUM TARİHİ</label>
+                        <input type="date" max={getTodayDate()} value={kayitForm.dogum} onChange={e => setKayitForm({ ...kayitForm, dogum: e.target.value })} required />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>CİNSİYET</label>
+                        <select value={kayitForm.cinsiyet} onChange={e => setKayitForm({ ...kayitForm, cinsiyet: e.target.value })} required>
+                            <option value="">Seçiniz</option>
+                            <option value="Erkek">Erkek</option>
+                            <option value="Kadin">Kadın</option>
+                          </select>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>ŞİFRE (Min. 6 Karakter)</label>
+                      <input type="password" minLength="6" value={kayitForm.sifre} onChange={e => setKayitForm({ ...kayitForm, sifre: e.target.value })} required />
+                    </div>
+                    <button type="submit" className="submit-btn">Kayıt İşlemini Tamamla</button>
+                    <p style={{marginTop: '25px', textAlign: 'center', color: '#666'}}>
+                      Zaten hesabınız var mı? <button type="button" className="text-btn" onClick={() => setIsLoginView(true)}>Giriş yapın.</button>
+                    </p>
+                  </form>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* RANDEVU AL */}
+        {activeTab === "randevu" && girisYapanHasta && (
+          <div className="container animate-fade-in">
+            <div className="section-card">
+              <h2>Randevu Oluştur</h2>
+              <form onSubmit={handleRandevuSubmit}>
+                <div className="form-group">
+                  <label>T.C. KİMLİK NUMARASI</label>
+                  <input type="text" value={randevuForm.tc} readOnly style={{backgroundColor: '#e9ecef', cursor: 'not-allowed'}} />
+                </div>
+                <div className="form-group">
+                  <label>BÖLÜM ve DOKTOR SEÇİMİ</label>
+                  <select value={randevuForm.doktorId} onChange={e => setRandevuForm({ ...randevuForm, doktorId: e.target.value })} required>
+                    <option value="">Doktor Seçiniz...</option>
+                    {(doktorlar || []).map(d => (
+                      <option key={d.DoktorID} value={d.DoktorID}>{d.BolumAdi} - {d.Unvan} {d.DAd} {d.DSoyad}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>RANDEVU TARİHİ</label>
+                  <input type="date" min={getTodayDate()} value={randevuForm.tarih} onChange={e => setRandevuForm({ ...randevuForm, tarih: e.target.value })} required />
+                </div>
+
+                {randevuForm.doktorId && randevuForm.tarih && (
                   <div className="form-group">
-                    <label>T.C. KİMLİK NUMARANIZ</label>
-                    <input type="text" maxLength="11" value={hastaGirisForm.tc} onInput={enforceOnlyNumbers} onChange={e => setHastaGirisForm({ ...hastaGirisForm, tc: e.target.value })} placeholder="11 Haneli TC No" required />
+                    <label>Randevu Saati Seçin (10'ar Dakikalık Periyotlar)</label>
+                    <div className="time-grid-main">
+                      {ANA_SAATLER.map(anaSaat => {
+                        const hepsiDoluMu = isAnaSaatTamamenDolu(anaSaat);
+                        const isExpanded = expandedHour === anaSaat;
+                        return (
+                          <div key={anaSaat} className="time-block">
+                            <button
+                              type="button"
+                              className={`time-slot-main ${hepsiDoluMu ? "disabled" : ""} ${isExpanded ? "active" : ""}`}
+                              onClick={() => { if (!hepsiDoluMu) setExpandedHour(isExpanded ? null : anaSaat); }}
+                              disabled={hepsiDoluMu}
+                            >
+                              {anaSaat} {hepsiDoluMu ? "(Dolu)" : "▼"}
+                            </button>
+                            <div className={`sub-slots-container ${isExpanded ? "open" : ""}`}>
+                              {getAltSaatler(anaSaat).map(altSaat => {
+                                const altDolu = (doluSaatler || []).includes(altSaat);
+                                const altSecili = randevuForm.saat === altSaat;
+                                return (
+                                  <button
+                                    type="button"
+                                    key={altSaat}
+                                    className={`time-slot-sub ${altDolu ? "disabled" : ""} ${altSecili ? "selected" : ""}`}
+                                    onClick={() => { if (!altDolu) setRandevuForm({ ...randevuForm, saat: altSaat }); }}
+                                    disabled={altDolu}
+                                  >
+                                    {altSaat}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label>ŞİFRENİZ</label>
-                    <input type="password" value={hastaGirisForm.sifre} onChange={e => setHastaGirisForm({ ...hastaGirisForm, sifre: e.target.value })} placeholder="Şifrenizi girin" required />
+                )}
+                <button type="submit" className="submit-btn" disabled={!randevuForm.saat}>Randevuyu Onayla ve Kaydet</button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* HASTA PANELİ (RANDEVULARIM) */}
+        {activeTab === "panelim" && girisYapanHasta && (
+          <div className="container animate-fade-in">
+            <div className="section-card">
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #280f42", paddingBottom: "10px", marginBottom: "20px" }}>
+                  <h2 style={{ border: "none", margin: 0, padding: 0 }}>Hoş Geldiniz, {girisYapanHasta.HastaAd} {girisYapanHasta.HastaSoyad}</h2>
+                 <button onClick={handleHastaCikis} className="nav-btn cancel-btn" style={{ backgroundColor: "#dc3545", color: 'white' }}>Güvenli Çıkış</button>
+                </div>
+                
+                <h3 style={{marginBottom: '15px'}}>Randevularım</h3>
+
+                {benimRandevularim.length === 0 ? (
+                  <p>Henüz alınmış bir randevunuz bulunmamaktadır. <button type="button" className="text-btn" onClick={() => handleTabChange("randevu")}>Hemen randevu alın.</button></p>
+                ) : (
+                  <div className="appointments-list">
+                    {(benimRandevularim || []).map(randevu => (
+                      <div key={randevu.RandevuID} className="appointment-card">
+                        <div className="appt-info">
+                          <h3>{randevu.BolumAdi} - {randevu.Unvan} {randevu.DAd} {randevu.DSoyad}</h3>
+                          <p>
+                            <strong>Tarih:</strong> {new Date(randevu.RandevuTarihi).toLocaleDateString("tr-TR")} | <strong>Saat:</strong> {randevu.RandevuSaati.substring(0, 5)}
+                          </p>
+                        </div>
+                        <div className="appt-actions">
+                          <span className={`status-badge status-${randevu.Durum.toLowerCase()}`}>{randevu.Durum}</span>
+                          {randevu.Durum === "Bekliyor" && (
+                            <div className="action-buttons">
+                              <button className="btn-approve" onClick={() => handleDurumDegistir(randevu.RandevuID, "Onaylandi")}>✔ Onayla</button>
+                              <button className="btn-cancel" onClick={() => handleDurumDegistir(randevu.RandevuID, "Iptal")}>✖ İptal Et</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <button type="submit" className="submit-btn">Sisteme Giriş Yap</button>
-                  <p style={{marginTop: '25px', textAlign: 'center', color: '#666'}}>
-                    Hesabınız yok mu? <button type="button" className="text-btn" onClick={() => setIsLoginView(false)}>Hemen kayıt olun.</button>
-                  </p>
-                </form>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+          
+        {/* ADMİN EKRANI */}
+        {activeTab === "admin" && (
+          <div className="animate-fade-in">
+            {!isAdminLoggedIn ? (
+              <div className="admin-login-wrapper">
+                <div className="admin-login-card">
+                  <div className="admin-header">
+                    <span className="admin-icon">🔒</span>
+                    <h2>Sistem Yönetimi</h2>
+                    <p>Yönetici veya Doktor olarak sisteme giriş yapınız.</p>
+                  </div>
+                  <form onSubmit={handleAdminSubmit} className="admin-form">
+                    <div className="form-group">
+                      <label>Kullanıcı Adı</label>
+                      <input type="text" value={adminForm.kullaniciAdi} onChange={e => setAdminForm({ ...adminForm, kullaniciAdi: e.target.value })} placeholder="Kullanıcı adınız" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Şifre</label>
+                      <input type="password" value={adminForm.sifre} onChange={e => setAdminForm({ ...adminForm, sifre: e.target.value })} placeholder="••••••••" required />
+                    </div>
+                    <button type="submit" className="submit-btn admin-submit-btn">Panele Giriş Yap</button>
+                    <p style={{ fontSize: '13px', color: '#888', marginTop: '15px' }}>*Yetkinize göre sistem arayüzü şekillenecektir.</p>
+                  </form>
+                </div>
               </div>
             ) : (
-              // YENİ HASTA KAYDI FORMU
-              <div className="animate-fade-in">
-                <h2>Yeni Hasta Kaydı</h2>
-                <p style={{color: '#666', marginBottom: '25px'}}>Sisteme kayıt olarak anında randevu alabilirsiniz.</p>
-                <form onSubmit={handleKayitSubmit}>
-                  <div style={{ display: "flex", gap: "15px" }}>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Ad</label>
-                      <input type="text" value={kayitForm.ad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, ad: e.target.value })} placeholder="Adınız" required />
+              <div className="container animate-fade-in" style={{ maxWidth: "1000px", marginTop: "60px" }}>
+                
+                {/* ADMİN DASHBOARD (Sadece Yöneticilere Gösterilecek Kartlar) */}
+                {adminView === "dashboard" && adminRole === "Yonetici" && (
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px", paddingBottom: "20px", borderBottom: "2px solid #eee" }}>
+                      <h2 style={{ fontSize: "32px", color: "#111", margin: 0, border: "none" }}>Yönetici Kontrol Paneli</h2>
+                      <button onClick={() => { 
+                        setIsAdminLoggedIn(false); 
+                        setAdminView("dashboard"); 
+                        localStorage.removeItem("adminToken"); 
+                        localStorage.removeItem("adminRole");
+                        showToast("Sistemden çıkış yapıldı.", "success");
+                      }} style={{ background: "#dc3545", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", cursor: "pointer" }}>
+                        Güvenli Çıkış
+                      </button>
                     </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Soyad</label>
-                      <input type="text" value={kayitForm.soyad} onInput={enforceOnlyLetters} onChange={e => setKayitForm({ ...kayitForm, soyad: e.target.value })} placeholder="Soyadınız" required />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>T.C. KİMLİK NO (11 Hane)</label>
-                    <input type="text" maxLength="11" pattern="\d{11}" title="T.C. Kimlik Numarası 11 haneli olmalıdır." value={kayitForm.tc} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, tc: e.target.value })} placeholder="12345678901" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Telefon</label>
-                    <input type="text" maxLength="11" value={kayitForm.telefon} onInput={enforceOnlyNumbers} onChange={e => setKayitForm({ ...kayitForm, telefon: e.target.value })} placeholder="05XX XXX XX XX" required />
-                  </div>
-                  <div style={{ display: "flex", gap: "15px" }}>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>DOĞUM TARİHİ</label>
-                      <input type="date" max={getTodayDate()} value={kayitForm.dogum} onChange={e => setKayitForm({ ...kayitForm, dogum: e.target.value })} required />
-                    </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>CİNSİYET</label>
-                      <select value={kayitForm.cinsiyet} onChange={e => setKayitForm({ ...kayitForm, cinsiyet: e.target.value })} required>
-                          <option value="">Seçiniz</option>
-                          <option value="Erkek">Erkek</option>
-                          <option value="Kadin">Kadın</option>
-                        </select>
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>ŞİFRE (Min. 6 Karakter)</label>
-                    <input type="password" minLength="6" value={kayitForm.sifre} onChange={e => setKayitForm({ ...kayitForm, sifre: e.target.value })} required />
-                  </div>
-                  <button type="submit" className="submit-btn">Kayıt İşlemini Tamamla</button>
-                  <p style={{marginTop: '25px', textAlign: 'center', color: '#666'}}>
-                    Zaten hesabınız var mı? <button type="button" className="text-btn" onClick={() => setIsLoginView(true)}>Giriş yapın.</button>
-                  </p>
-                </form>
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
-
-      {/* RANDEVU AL */}
-      {activeTab === "randevu" && girisYapanHasta && (
-        <div className="container animate-fade-in">
-          <div className="section-card">
-            <h2>Randevu Oluştur</h2>
-            <form onSubmit={handleRandevuSubmit}>
-              <div className="form-group">
-                <label>T.C. KİMLİK NUMARASI</label>
-                <input type="text" value={randevuForm.tc} readOnly style={{backgroundColor: '#e9ecef', cursor: 'not-allowed'}} />
-              </div>
-              <div className="form-group">
-                <label>BÖLÜM ve DOKTOR SEÇİMİ</label>
-                <select value={randevuForm.doktorId} onChange={e => setRandevuForm({ ...randevuForm, doktorId: e.target.value })} required>
-                  <option value="">Doktor Seçiniz...</option>
-                  {(doktorlar || []).map(d => (
-                    <option key={d.DoktorID} value={d.DoktorID}>{d.BolumAdi} - {d.Unvan} {d.DAd} {d.DSoyad}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>RANDEVU TARİHİ</label>
-                <input type="date" min={getTodayDate()} value={randevuForm.tarih} onChange={e => setRandevuForm({ ...randevuForm, tarih: e.target.value })} required />
-              </div>
-
-              {randevuForm.doktorId && randevuForm.tarih && (
-                <div className="form-group">
-                  <label>Randevu Saati Seçin (10'ar Dakikalık Periyotlar)</label>
-                  <div className="time-grid-main">
-                    {ANA_SAATLER.map(anaSaat => {
-                      const hepsiDoluMu = isAnaSaatTamamenDolu(anaSaat);
-                      const isExpanded = expandedHour === anaSaat;
-                      return (
-                        <div key={anaSaat} className="time-block">
-                          <button
-                            type="button"
-                            className={`time-slot-main ${hepsiDoluMu ? "disabled" : ""} ${isExpanded ? "active" : ""}`}
-                            onClick={() => { if (!hepsiDoluMu) setExpandedHour(isExpanded ? null : anaSaat); }}
-                            disabled={hepsiDoluMu}
-                          >
-                            {anaSaat} {hepsiDoluMu ? "(Dolu)" : "▼"}
-                          </button>
-                          <div className={`sub-slots-container ${isExpanded ? "open" : ""}`}>
-                            {getAltSaatler(anaSaat).map(altSaat => {
-                              const altDolu = (doluSaatler || []).includes(altSaat);
-                              const altSecili = randevuForm.saat === altSaat;
-                              return (
-                                <button
-                                  type="button"
-                                  key={altSaat}
-                                  className={`time-slot-sub ${altDolu ? "disabled" : ""} ${altSecili ? "selected" : ""}`}
-                                  onClick={() => { if (!altDolu) setRandevuForm({ ...randevuForm, saat: altSaat }); }}
-                                  disabled={altDolu}
-                                >
-                                  {altSaat}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              <button type="submit" className="submit-btn" disabled={!randevuForm.saat}>Randevuyu Onayla ve Kaydet</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* HASTA PANELİ (RANDEVULARIM) */}
-      {activeTab === "panelim" && girisYapanHasta && (
-        <div className="container animate-fade-in">
-          <div className="section-card">
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #280f42", paddingBottom: "10px", marginBottom: "20px" }}>
-                <h2 style={{ border: "none", margin: 0, padding: 0 }}>Hoş Geldiniz, {girisYapanHasta.HastaAd} {girisYapanHasta.HastaSoyad}</h2>
-               <button onClick={handleHastaCikis} className="nav-btn cancel-btn" style={{ backgroundColor: "#dc3545", color: 'white' }}>Güvenli Çıkış</button>
-              </div>
-              
-              <h3 style={{marginBottom: '15px'}}>Randevularım</h3>
-
-              {benimRandevularim.length === 0 ? (
-                <p>Henüz alınmış bir randevunuz bulunmamaktadır. <button type="button" className="text-btn" onClick={() => handleTabChange("randevu")}>Hemen randevu alın.</button></p>
-              ) : (
-                <div className="appointments-list">
-                  {(benimRandevularim || []).map(randevu => (
-                    <div key={randevu.RandevuID} className="appointment-card">
-                      <div className="appt-info">
-                        <h3>{randevu.BolumAdi} - {randevu.Unvan} {randevu.DAd} {randevu.DSoyad}</h3>
-                        <p>
-                          <strong>Tarih:</strong> {new Date(randevu.RandevuTarihi).toLocaleDateString("tr-TR")} | <strong>Saat:</strong> {randevu.RandevuSaati.substring(0, 5)}
-                        </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px" }}>
+                      <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
+                        <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>👨‍⚕️</h1>
+                        <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Doktor Yönetimi</h3>
+                        <p style={{ color: "#666", marginBottom: "25px" }}>Sisteme yeni doktor ekleyin veya mevcut doktorları yönetin.</p>
+                        <button onClick={() => setAdminView("doktorlar")} className="submit-btn admin-submit-btn">Doktorları Yönet</button>
                       </div>
-                      <div className="appt-actions">
-                        <span className={`status-badge status-${randevu.Durum.toLowerCase()}`}>{randevu.Durum}</span>
-                        {randevu.Durum === "Bekliyor" && (
-                          <div className="action-buttons">
-                            <button className="btn-approve" onClick={() => handleDurumDegistir(randevu.RandevuID, "Onaylandi")}>✔ Onayla</button>
-                            <button className="btn-cancel" onClick={() => handleDurumDegistir(randevu.RandevuID, "Iptal")}>✖ İptal Et</button>
+                      <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
+                        <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>📅</h1>
+                        <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Sistem Randevuları</h3>
+                        <p style={{ color: "#666", marginBottom: "25px" }}>Sistemdeki tüm hasta randevularını ve bilgilerini görüntüleyin.</p>
+                        <button onClick={() => setAdminView("randevular")} className="submit-btn admin-submit-btn">Randevuları Görüntüle</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* DOKTOR YÖNETİMİ (Sadece Yönetici Rolüne Açık) */}
+                {adminView === "doktorlar" && adminRole === "Yonetici" && (
+                  <div className="animate-fade-in">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                      <h2 style={{ color: "#111", margin: 0 }}>Doktor Yönetimi</h2>
+                      <button onClick={() => setAdminView("dashboard")} className="btn-secondary" style={{ color: "#111", border: "2px solid #111", borderRadius: "10px" }}>← Panele Dön</button>
+                    </div>
+                    <div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
+                      <div className="section-card" style={{ flex: "1", minWidth: "300px" }}>
+                        <h3>Yeni Doktor Ekle</h3>
+                        <form onSubmit={handleDoktorEkle}>
+                          <div className="form-group">
+                              <label>Ad</label>
+                              <input type="text" value={yeniDoktor.ad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, ad: e.target.value })} required />
                           </div>
+                          <div className="form-group">
+                              <label>Soyad</label>
+                              <input type="text" value={yeniDoktor.soyad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, soyad: e.target.value })} required />
+                          </div>
+                          <div style={{ display: "flex", gap: "15px" }}>
+                            <div className="form-group" style={{ flex: 1 }}>
+                              <label>Ünvan</label>
+                              <input type="text" placeholder="Örn: Prof. Dr." pattern=".{2,}" title="Minimum 2 karakter" value={yeniDoktor.unvan} onChange={e => setYeniDoktor({ ...yeniDoktor, unvan: e.target.value })} required />
+                             </div>
+                            <div className="form-group" style={{ flex: 1 }}>
+                              <label>Cinsiyet</label>
+                              <select value={yeniDoktor.cinsiyet} onChange={e => setYeniDoktor({ ...yeniDoktor, cinsiyet: e.target.value })} required>
+                                <option value="">Seçiniz</option>
+                                <option value="E">Erkek</option>
+                                <option value="K">Kadın</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Bölüm (Otomatik Yüklendi)</label>
+                            <select value={yeniDoktor.bolumId} onChange={e => setYeniDoktor({ ...yeniDoktor, bolumId: e.target.value })} required>
+                              <option value="">Bölüm seçiniz...</option>
+                              {(bolumler || []).map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
+                            </select>
+                          </div>
+                          <button type="submit" className="submit-btn admin-submit-btn">Doktoru Sisteme Ekle</button>
+                        </form>
+                      </div>
+                      <div className="section-card" style={{ flex: "1.5", minWidth: "350px" }}>
+                        <h3>Mevcut Doktorlar ({doktorlar.length})</h3>
+                        <div className="appointments-list">
+                          {(doktorlar || []).map(dr => (
+                            <div key={dr.DoktorID} className="appointment-card" style={{ borderLeftColor: "#111" }}>
+                              <div className="appt-info">
+                                <h3 style={{ margin: 0, color: "#111" }}>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h3>
+                                <p>{dr.BolumAdi}</p>
+                              </div>
+                              <button onClick={() => handleDoktorSil(dr.DoktorID)} className="btn-cancel" style={{ padding: "8px 12px" }}>✖ Sil</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* RANDEVULAR / DOKTOR PANELİ (Yönetici ve Doktorlar Görür) */}
+                {adminView === "randevular" && (
+                  <div className="animate-fade-in">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                      <h2 style={{ color: "#111", margin: 0 }}>
+                        {adminRole === "Yonetici" ? "Sistemdeki Tüm Randevular" : "Hastalarım ve Randevular"}
+                      </h2>
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button onClick={fetchTumRandevular} className="submit-btn" style={{ margin: 0, padding: "10px 20px", width: "auto" }}>🔄 Verileri Yenile</button>
+                        
+                        {adminRole === "Yonetici" ? (
+                          <button onClick={() => setAdminView("dashboard")} className="btn-secondary" style={{ color: "#111", border: "2px solid #111", borderRadius: "10px" }}>← Panele Dön</button>
+                        ) : (
+                          <button onClick={() => { 
+                            setIsAdminLoggedIn(false); 
+                            localStorage.removeItem("adminToken"); 
+                            localStorage.removeItem("adminRole");
+                            showToast("Sistemden çıkış yapıldı.", "success");
+                          }} className="btn-cancel">Sistemden Çıkış Yap</button>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-        
-      {/* ADMİN EKRANI */}
-      {activeTab === "admin" && (
-        <div className="animate-fade-in">
-          {!isAdminLoggedIn ? (
-            <div className="admin-login-wrapper">
-              <div className="admin-login-card">
-                <div className="admin-header">
-                  <span className="admin-icon">🔒</span>
-                  <h2>Sistem Yönetimi</h2>
-                  <p>Yönetici veya Doktor olarak sisteme giriş yapınız.</p>
-                </div>
-                <form onSubmit={handleAdminSubmit} className="admin-form">
-                  <div className="form-group">
-                    <label>Kullanıcı Adı</label>
-                    <input type="text" value={adminForm.kullaniciAdi} onChange={e => setAdminForm({ ...adminForm, kullaniciAdi: e.target.value })} placeholder="Kullanıcı adınız" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Şifre</label>
-                    <input type="password" value={adminForm.sifre} onChange={e => setAdminForm({ ...adminForm, sifre: e.target.value })} placeholder="••••••••" required />
-                  </div>
-                  <button type="submit" className="submit-btn admin-submit-btn">Panele Giriş Yap</button>
-                  <p style={{ fontSize: '13px', color: '#888', marginTop: '15px' }}>*Yetkinize göre sistem arayüzü şekillenecektir.</p>
-                </form>
-              </div>
-            </div>
-          ) : (
-            <div className="container animate-fade-in" style={{ maxWidth: "1000px", marginTop: "60px" }}>
-              
-              {/* ADMİN DASHBOARD (Sadece Yöneticilere Gösterilecek Kartlar) */}
-              {adminView === "dashboard" && adminRole === "Yonetici" && (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px", paddingBottom: "20px", borderBottom: "2px solid #eee" }}>
-                    <h2 style={{ fontSize: "32px", color: "#111", margin: 0, border: "none" }}>Yönetici Kontrol Paneli</h2>
-                    <button onClick={() => { 
-                      setIsAdminLoggedIn(false); 
-                      setAdminView("dashboard"); 
-                      localStorage.removeItem("adminToken"); 
-                      localStorage.removeItem("adminRole");
-                      showToast("Sistemden çıkış yapıldı.", "success");
-                    }} style={{ background: "#dc3545", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", cursor: "pointer" }}>
-                      Güvenli Çıkış
-                    </button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px" }}>
-                    <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
-                      <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>👨‍⚕️</h1>
-                      <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Doktor Yönetimi</h3>
-                      <p style={{ color: "#666", marginBottom: "25px" }}>Sisteme yeni doktor ekleyin veya mevcut doktorları yönetin.</p>
-                      <button onClick={() => setAdminView("doktorlar")} className="submit-btn admin-submit-btn">Doktorları Yönet</button>
-                    </div>
-                    <div className="section-card" style={{ textAlign: "center", padding: "40px" }}>
-                      <h1 style={{ fontSize: "48px", margin: "0 0 15px 0" }}>📅</h1>
-                      <h3 style={{ fontSize: "22px", color: "#111", marginBottom: "10px" }}>Sistem Randevuları</h3>
-                      <p style={{ color: "#666", marginBottom: "25px" }}>Sistemdeki tüm hasta randevularını ve bilgilerini görüntüleyin.</p>
-                      <button onClick={() => setAdminView("randevular")} className="submit-btn admin-submit-btn">Randevuları Görüntüle</button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* DOKTOR YÖNETİMİ (Sadece Yönetici Rolüne Açık) */}
-              {adminView === "doktorlar" && adminRole === "Yonetici" && (
-                <div className="animate-fade-in">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                    <h2 style={{ color: "#111", margin: 0 }}>Doktor Yönetimi</h2>
-                    <button onClick={() => setAdminView("dashboard")} className="btn-secondary" style={{ color: "#111", border: "2px solid #111", borderRadius: "10px" }}>← Panele Dön</button>
-                  </div>
-                  <div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
-                    <div className="section-card" style={{ flex: "1", minWidth: "300px" }}>
-                      <h3>Yeni Doktor Ekle</h3>
-                      <form onSubmit={handleDoktorEkle}>
-                        <div className="form-group">
-                            <label>Ad</label>
-                            <input type="text" value={yeniDoktor.ad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, ad: e.target.value })} required />
-                        </div>
-                        <div className="form-group">
-                            <label>Soyad</label>
-                            <input type="text" value={yeniDoktor.soyad} onInput={enforceOnlyLetters} onChange={e => setYeniDoktor({ ...yeniDoktor, soyad: e.target.value })} required />
-                        </div>
-                        <div style={{ display: "flex", gap: "15px" }}>
-                          <div className="form-group" style={{ flex: 1 }}>
-                            <label>Ünvan</label>
-                            <input type="text" placeholder="Örn: Prof. Dr." pattern=".{2,}" title="Minimum 2 karakter" value={yeniDoktor.unvan} onChange={e => setYeniDoktor({ ...yeniDoktor, unvan: e.target.value })} required />
-                           </div>
-                          <div className="form-group" style={{ flex: 1 }}>
-                            <label>Cinsiyet</label>
-                            <select value={yeniDoktor.cinsiyet} onChange={e => setYeniDoktor({ ...yeniDoktor, cinsiyet: e.target.value })} required>
-                              <option value="">Seçiniz</option>
-                              <option value="E">Erkek</option>
-                              <option value="K">Kadın</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="form-group">
-                          <label>Bölüm (Otomatik Yüklendi)</label>
-                          <select value={yeniDoktor.bolumId} onChange={e => setYeniDoktor({ ...yeniDoktor, bolumId: e.target.value })} required>
-                            <option value="">Bölüm seçiniz...</option>
-                            {(bolumler || []).map(b => <option key={b.BolumID} value={b.BolumID}>{b.BolumAdi}</option>)}
-                          </select>
-                        </div>
-                        <button type="submit" className="submit-btn admin-submit-btn">Doktoru Sisteme Ekle</button>
-                      </form>
-                    </div>
-                    <div className="section-card" style={{ flex: "1.5", minWidth: "350px" }}>
-                      <h3>Mevcut Doktorlar ({doktorlar.length})</h3>
-                      <div className="appointments-list">
-                        {(doktorlar || []).map(dr => (
-                          <div key={dr.DoktorID} className="appointment-card" style={{ borderLeftColor: "#111" }}>
-                            <div className="appt-info">
-                              <h3 style={{ margin: 0, color: "#111" }}>{dr.Unvan} {dr.DAd} {dr.DSoyad}</h3>
-                              <p>{dr.BolumAdi}</p>
-                            </div>
-                            <button onClick={() => handleDoktorSil(dr.DoktorID)} className="btn-cancel" style={{ padding: "8px 12px" }}>✖ Sil</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* RANDEVULAR / DOKTOR PANELİ (Yönetici ve Doktorlar Görür) */}
-              {adminView === "randevular" && (
-                <div className="animate-fade-in">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                    <h2 style={{ color: "#111", margin: 0 }}>
-                      {adminRole === "Yonetici" ? "Sistemdeki Tüm Randevular" : "Hastalarım ve Randevular"}
-                    </h2>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <button onClick={fetchTumRandevular} className="submit-btn" style={{ margin: 0, padding: "10px 20px", width: "auto" }}>🔄 Verileri Yenile</button>
-                      
-                      {adminRole === "Yonetici" ? (
-                        <button onClick={() => setAdminView("dashboard")} className="btn-secondary" style={{ color: "#111", border: "2px solid #111", borderRadius: "10px" }}>← Panele Dön</button>
+                    <div className="section-card">
+                      {tumRandevular.length === 0 ? (
+                        <p>Verileri çekmek için Yenile butonuna basın veya sistemde aktif randevu bulunmamaktadır.</p>
                       ) : (
-                        <button onClick={() => { 
-                          setIsAdminLoggedIn(false); 
-                          localStorage.removeItem("adminToken"); 
-                          localStorage.removeItem("adminRole");
-                          showToast("Sistemden çıkış yapıldı.", "success");
-                        }} className="btn-cancel">Sistemden Çıkış Yap</button>
+                        <div className="appointments-list">
+                          {(tumRandevular || []).map(r => (
+                            <div key={r.RandevuID} className="appointment-card" style={{ borderLeftColor: r.Durum === "Bekliyor" ? "#ffc107" : r.Durum === "Onaylandi" ? "#28a745" : "#dc3545" }}>
+                              <div className="appt-info" style={{ flex: 1 }}>
+                                <h3 style={{ color: "#111", fontSize: "16px" }}>🧑 Hasta: {r.HAd} {r.HSoyad} <span style={{fontSize: "14px", color: "#666"}}>(TC: {r.TCno} - Tel: {r.HTelefon || "Mevcut Değil"})</span></h3>
+                                {adminRole === "Yonetici" && (
+                                  <p style={{ margin: "5px 0" }}>👨‍⚕️ Doktor: {r.Unvan} {r.DAd} {r.DSoyad} - {r.BolumAdi}</p>
+                                )}
+                                <p style={{ fontWeight: "bold", marginTop: "10px" }}>📅 {new Date(r.RandevuTarihi).toLocaleDateString("tr-TR")} | ⏰ {r.RandevuSaati.substring(0, 5)}</p>
+                              </div>
+                              <div className="appt-actions" style={{ alignItems: "center", gap: "15px", flexDirection: "row" }}>
+                                <span className={`status-badge status-${r.Durum.toLowerCase()}`}>{r.Durum}</span>
+                                {r.Durum === "Bekliyor" && (
+                                  <div style={{ display: "flex", gap: "5px" }}>
+                                    <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Onaylandi")} className="btn-approve">✔ Onayla</button>
+                                    <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Iptal")} className="btn-cancel">✖ İptal</button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
-                  <div className="section-card">
-                    {tumRandevular.length === 0 ? (
-                      <p>Verileri çekmek için Yenile butonuna basın veya sistemde aktif randevu bulunmamaktadır.</p>
-                    ) : (
-                      <div className="appointments-list">
-                        {(tumRandevular || []).map(r => (
-                          <div key={r.RandevuID} className="appointment-card" style={{ borderLeftColor: r.Durum === "Bekliyor" ? "#ffc107" : r.Durum === "Onaylandi" ? "#28a745" : "#dc3545" }}>
-                            <div className="appt-info" style={{ flex: 1 }}>
-                              <h3 style={{ color: "#111", fontSize: "16px" }}>🧑 Hasta: {r.HAd} {r.HSoyad} <span style={{fontSize: "14px", color: "#666"}}>(TC: {r.TCno} - Tel: {r.HTelefon || "Mevcut Değil"})</span></h3>
-                              {adminRole === "Yonetici" && (
-                                <p style={{ margin: "5px 0" }}>👨‍⚕️ Doktor: {r.Unvan} {r.DAd} {r.DSoyad} - {r.BolumAdi}</p>
-                              )}
-                              <p style={{ fontWeight: "bold", marginTop: "10px" }}>📅 {new Date(r.RandevuTarihi).toLocaleDateString("tr-TR")} | ⏰ {r.RandevuSaati.substring(0, 5)}</p>
-                            </div>
-                            <div className="appt-actions" style={{ alignItems: "center", gap: "15px", flexDirection: "row" }}>
-                              <span className={`status-badge status-${r.Durum.toLowerCase()}`}>{r.Durum}</span>
-                              {r.Durum === "Bekliyor" && (
-                                <div style={{ display: "flex", gap: "5px" }}>
-                                  <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Onaylandi")} className="btn-approve">✔ Onayla</button>
-                                  <button onClick={() => handleAdminRandevuGuncelle(r.RandevuID, "Iptal")} className="btn-cancel">✖ İptal</button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                )}
 
-            </div>
-          )}
-        </div>
-      )}
-  </main>
-      {/* FOOTER - Admin girişi buraya taşındı. */}
+              </div>
+            )}
+          </div>
+        )}
+
+      {/* --- YENİ ESNEME KUTUMUZ BİTİYOR --- */}
+      </main>
+
+      {/* FOOTER - Admin girişi buraya taşındı */}
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section brand">
