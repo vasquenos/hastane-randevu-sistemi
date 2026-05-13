@@ -76,6 +76,7 @@ export default function App() {
       setToast({ visible: false, message: "", type: "" });
     }, 3000); 
   };
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobil menü açık/kapalı durumu
 
   const handleConfirm = (message, onConfirmCallback) => {
     setConfirmDialog({ isOpen: true, message, onConfirm: onConfirmCallback });
@@ -175,19 +176,20 @@ export default function App() {
 
   // --- NAVİGASYON KONTROLÜ ---
   const handleTabChange = (key) => {
-    if (key === "randevu" && !girisYapanHasta) {
-      showToast("Randevu oluşturmak için önce giriş yapmalısınız.", "error");
-      setIsLoginView(true);
-      setActiveTab("auth"); 
-    } else if (key === "auth" && girisYapanHasta) {
-      setActiveTab("panelim");
-    } else if (key === "panelim" && !girisYapanHasta) {
-      setIsLoginView(true);
-      setActiveTab("auth");
-    } else {
-      setActiveTab(key);
-    }
-  };
+  setIsMobileMenuOpen(false); // Linke tıklanınca mobil menüyü otomatik kapat
+  if (key === "randevu" && !girisYapanHasta) {
+    showToast("Randevu oluşturmak için önce giriş yapmalısınız.", "error");
+    setIsLoginView(true);
+    setActiveTab("auth"); 
+  } else if (key === "auth" && girisYapanHasta) {
+    setActiveTab("panelim");
+  } else if (key === "panelim" && !girisYapanHasta) {
+    setIsLoginView(true);
+    setActiveTab("auth");
+  } else {
+    setActiveTab(key);
+  }
+};
 
   // --- ADMİN VERİ FONKSİYONLARI ---
 
@@ -427,13 +429,21 @@ export default function App() {
         </div>
       )}
 
-      {/* NAVBAR */}
+      {/* NAVBAR (Mobil Hamburger Menü Entegreli) */}
       <nav className="navbar">
         <div className="logo" onClick={() => handleTabChange("home")} style={{cursor: 'pointer'}}>
           Hastane Randevu
         </div>
-        <div className="nav-links">
-          {/* Header'dan 'Admin' ve 'Kayıt' kaldırıldı. 'Giriş/Kayıt' tek link oldu */}
+        
+        {/* Mobil Ekranlar İçin Hamburger Butonu */}
+        <button 
+          className="hamburger-btn" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? "✖" : "☰"}
+        </button>
+
+        <div className={`nav-links ${isMobileMenuOpen ? "open" : ""}`}>
           <button className={`nav-btn ${activeTab === "home" ? "active" : ""}`} onClick={() => handleTabChange("home")}>Ana Sayfa</button>
           <button className={`nav-btn ${activeTab === "hakkimizda" ? "active" : ""}`} onClick={() => handleTabChange("hakkimizda")}>Hakkımızda</button>
           <button className={`nav-btn ${activeTab === "randevu" ? "active" : ""}`} onClick={() => handleTabChange("randevu")}>Randevu Al</button>

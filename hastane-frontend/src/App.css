@@ -820,3 +820,94 @@ body {
 @keyframes spin { 
   to { transform: rotate(360deg); } 
 }
+/* =========================================
+   📱 MOBİL UYUMLULUK (RESPONSIVE TASARIM) 
+   ========================================= */
+
+/* Sadece mobilde görünecek Hamburger Butonu */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 5px;
+}
+
+@media (max-width: 768px) {
+  /* Navbar ve Hamburger Menü */
+  .hamburger-btn {
+    display: block;
+  }
+  
+  .navbar {
+    padding: 15px 20px;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    
+    /* Menü açılış animasyonu için gizleme */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+  }
+
+  .nav-links.open {
+    max-height: 400px; /* Menü açıldığında alacağı boyut */
+    padding: 10px 20px 20px 20px;
+  }
+
+  .nav-btn {
+    width: 100%;
+    text-align: left;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
+
+  /* Kahraman (Hero) Bölümü Yazı Boyutları */
+  .hero-section h1 {
+    font-size: 2.2rem;
+  }
+  .hero-section p {
+    font-size: 15px;
+  }
+
+  /* Formların Yan Yana Durmasını Engelle (Alt alta diz) */
+  form > div[style*="display: flex"] {
+    flex-direction: column;
+    gap: 0 !important;
+  }
+
+  /* Sayaçlar (1000+ Hasta vb.) */
+  .stats-container {
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+
+  /* Admin Paneli Kartları */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  div[style*="display: flex; gap: 30px; flex-wrap: wrap"] {
+    flex-direction: column;
+    gap: 20px !important;
+  }
+
+  /* Footer (Alt Bilgi) */
+  .footer-content {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 20px 20px 20px;
+  }
+}
