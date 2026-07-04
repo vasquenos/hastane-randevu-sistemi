@@ -90,7 +90,10 @@ export default function App() {
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/doktorlar`)
       .then(res => setDoktorlar(Array.isArray(res.data) ? res.data : []))
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        showToast("Veritabanına bağlanılamadı: " + (err.response?.data?.mesaj || err.message), "error");
+      });
   }, []);
 
   // Slider
