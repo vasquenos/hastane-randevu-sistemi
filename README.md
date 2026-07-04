@@ -1,70 +1,122 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 🏥 Hastane Randevu Sistemi
 
-## Available Scripts
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-In the project directory, you can run:
+**[🔗 Canlı Demo](https://hastane-randevu-sistemi-3vcp.vercel.app/)**
 
-### `npm start`
+## 📌 Proje Hakkında
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Hasta, doktor ve admin olmak üzere üç farklı yetki seviyesine sahip, uçtan uca geliştirilmiş bir hastane randevu yönetim sistemi. Fikirden canlıya (production) kadar tüm süreci — veritabanı tasarımı, backend API geliştirme, kimlik doğrulama, rol bazlı yetkilendirme ve deployment — tek başıma tasarlayıp geliştirdim.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Bu proje bana özellikle şunları kazandırdı:
+- Rol bazlı yetkilendirme (RBAC) mantığını gerçek bir senaryoda kurgulama
+- İlişkisel veritabanı tasarımı (hasta–doktor–randevu ilişkileri)
+- Bulut tabanlı veritabanı yönetimi ve production deployment deneyimi
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 👥 Roller ve Özellikler
 
-### `npm run build`
+| Rol | Yetkiler |
+|---|---|
+| **Hasta** | Kayıt olma / giriş yapma, doktor & branşa göre randevu alma, randevularını görüntüleme/iptal etme |
+| **Doktor** | Kendine ait randevuları görüntüleme, hasta bilgilerine erişim, çalışma takvimi/uygunluk yönetimi |
+| **Admin** | Doktor ekleme/çıkarma, tüm randevuları yönetme, kullanıcı yönetimi |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> Kimlik doğrulama (login/register) tüm roller için JWT (JSON Web Token) tabanlı oturum yönetimiyle sağlanıyor.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ⚙️ Sistem Mimarisi
 
-### `npm run eject`
+```text
+[ React (Frontend) ]
+        │  HTTP / REST API istekleri
+        ▼
+[ Node.js + Express (Backend API) ]
+        │  Kimlik doğrulama & yetkilendirme (JWT)
+        │  Rol bazlı erişim kontrolü (Hasta / Doktor / Admin)
+        ▼
+[ MySQL Veritabanı — Aiven Cloud ]
+        - Kullanıcılar (roller ile)
+        - Doktorlar & branşlar
+        - Randevular
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Deployment:** Frontend Vercel üzerinde, backend Render üzerinde, veritabanı Aiven Cloud üzerinde yönetilen MySQL instance'ı olacak şekilde üç ayrı bulut servisi entegre edilerek yayınlandı.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🛠️ Kullanılan Teknolojiler
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Katman | Teknoloji |
+|---|---|
+| Frontend | React |
+| Backend | Node.js, Express.js |
+| Veritabanı | MySQL (Aiven Cloud) |
+| Kimlik Doğrulama | JWT (JSON Web Token) |
+| Deployment | Vercel (frontend), Render (backend) |
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🚀 Kurulum (Local Development)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+# Repoyu klonla
+git clone https://github.com/vasquenos/hastane-randevu-sistemi.git
+cd hastane-randevu-sistemi
 
-### Code Splitting
+# Backend bağımlılıklarını kur
+cd backend
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# .env dosyasını oluştur
+DB_HOST=your_aiven_host
+DB_PORT=your_aiven_port
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+JWT_SECRET=your_secret_key
 
-### Analyzing the Bundle Size
+# Backend'i başlat
+npm start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Frontend bağımlılıklarını kur (yeni terminal)
+cd ../frontend
+npm install
+npm start
+```
 
-### Making a Progressive Web App
+> ⚠️ `.env` dosyasını `.gitignore`'a eklemeyi unutma — veritabanı bilgilerinin repoda görünmediğinden emin ol.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## 📷 Ekran Görüntüleri
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+| Giriş Ekranı | Hasta Paneli |
+|---|---|
+| ![Giriş Ekranı](screenshots/login.png) | ![Hasta Paneli](screenshots/hasta-paneli.png) |
 
-### Deployment
+| Doktor Paneli | Admin Paneli |
+|---|---|
+| ![Doktor Paneli](screenshots/doktor-paneli.png) | ![Admin Paneli](screenshots/admin-paneli.png) |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 🔮 Geliştirme Fikirleri
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [ ] E-posta/SMS ile randevu hatırlatma bildirimleri
+- [ ] Randevu geçmişi ve raporlama (PDF/Excel dışa aktarma)
+- [ ] Docker ile containerize etme
+- [ ] Refresh token ile JWT oturum süresini uzatma
+
+---
+
+## 📬 İletişim
+
+[LinkedIn / Portfolyo linkin]
