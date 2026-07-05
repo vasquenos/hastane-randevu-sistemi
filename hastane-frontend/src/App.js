@@ -194,6 +194,13 @@ export default function App() {
   }
 };
 
+  // --- AUTH HEADER YARDIMCILARI ---
+  // Backend artık token doğrulaması yapıyor; token'ı istekle birlikte
+  // Authorization header'ında göndermemiz gerekiyor (önceden hiç
+  // gönderilmiyordu, bu yüzden middleware eklenince istekler kırılırdı).
+  const hastaAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem("hastaToken")}` } });
+  const adminAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } });
+
   // --- ADMİN VERİ FONKSİYONLARI ---
 
   const fetchBolumler = async () => {
@@ -206,7 +213,12 @@ export default function App() {
   const fetchTumRandevular = async () => {
     setIsLoading(true); 
     try { 
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/tum-randevular`); 
+      // Rol izolasyonu: Doktor sadece kendi randevularını görebileceği ayrı
+      // bir endpoint'ten veri çeker; Yönetici (admin) tüm randevuları
+      // görebildiği endpoint'i kullanır. Hangi endpoint çağrılırsa çağrılsın
+      // gerçek filtreleme backend'de, token içindeki role/doktorId'ye göre yapılıyor.
+      const url = adminRole === "Doktor" ? "doktor-randevularim" : "tum-randevular";
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/${url}`, adminAuthHeader()); 
       setTumRandevular(Array.isArray(res.data) ? res.data : []); 
     } catch (err) { 
     } finally {
@@ -226,7 +238,7 @@ export default function App() {
   const handleDoktorEkle = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/doktor-ekle`, yeniDoktor);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/doktor-ekle`, yeniDoktor, adminAuthHeader());
       showToast(res.data.mesaj, "success");
       setYeniDoktor({ ad: "", soyad: "", unvan: "", cinsiyet: "", bolumId: "" });
       refetchDoktorlar();
@@ -239,7 +251,7 @@ export default function App() {
     // Tarayıcı alerti yerine kendi UI modalımız eklendi
     handleConfirm("Bu doktoru sistemden silmek istediğinize emin misiniz? Bu işlem geri alınamaz.", async () => {
       try {
-        const res = await axios.delete(`${process.env.REACT_APP_API_URL}/doktor-sil/${id}`);
+        const res = await axios.delete(`${process.env.REACT_APP_API_URL}/doktor-sil/${id}`, adminAuthHeader());
         showToast(res.data.mesaj, "success");
         refetchDoktorlar();
       } catch (err) { 
@@ -250,11 +262,15 @@ export default function App() {
 
   const handleAdminRandevuGuncelle = async (id, durum) => {
     try {
-      const res = await axios.put(`${process.env.REACT_APP_API_URL}/admin-randevu-durum`, { randevuId: id, yeniDurum: durum });
+      // Doktor kendi randevusunu güncelliyorsa doktor-randevu-durum uç noktası
+      // kullanılır (backend orada DoktorID eşleşmesini zorunlu kılıyor);
+      // Yönetici için tüm randevuları güncelleyebilen uç kullanılır.
+      const url = adminRole === "Doktor" ? "doktor-randevu-durum" : "admin-randevu-durum";
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/${url}`, { randevuId: id, yeniDurum: durum }, adminAuthHeader());
       showToast(res.data.mesaj, "success");
       fetchTumRandevular(); 
     } catch (err) { 
-      showToast("Hata oluştu.", "error"); 
+      showToast(err.response?.data?.mesaj || "Hata oluştu.", "error"); 
     }
   };
 
@@ -265,8 +281,14 @@ export default function App() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/admin-giris`, adminForm);
       if (response.data.basarili) {
-        // Backend'den rol geliyorsa al, gelmiyorsa "dr" ile başlıyorsa doktor, yoksa yönetici varsay
-        const rol = response.data.role || (adminForm.kullaniciAdi.toLowerCase().includes('dr') ? 'Doktor' : 'Yonetici');
+        // ÖNEMLİ DÜZELTME: Rol artık SADECE backend'in döndürdüğü değere göre
+        // belirleniyor. Eskiden kullanıcı adında "dr" geçiyorsa "Doktor"
+        // varsayılıyordu — bu, gerçek bir yetkilendirme değil, sadece
+        // frontend'in tahminiydi ve backend zaten herkese tüm randevuları
+        // (/tum-randevular) döndürdüğü için bu tahmin hiçbir şeyi
+        // güvenli hale getirmiyordu. Artık backend, hesabın gerçek rolünü
+        // (yonetici tablosundaki Rol sütunu) JWT'ye gömüp döndürüyor.
+        const rol = response.data.role || 'Yonetici';
         
         showToast(response.data.mesaj, "success");
         setAdminForm({ kullaniciAdi: "", sifre: "" });
@@ -347,7 +369,9 @@ export default function App() {
   const fetchRandevularim = async (hastaId) => {
     setIsLoading(true);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/randevularim?hastaId=${hastaId}`);
+      // hastaId artık backend'de token'dan okunuyor (IDOR düzeltmesi), yine de
+      // eski parametreyi de gönderiyoruz zararı yok; asıl güvenlik token'da.
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/randevularim?hastaId=${hastaId}`, hastaAuthHeader());
       setBenimRandevularim(Array.isArray(res.data) ? res.data : []);
     } catch (err) { 
       console.log("Randevular çekilemedi", err); 
@@ -366,7 +390,7 @@ export default function App() {
           randevuId: randevuId,
           yeniDurum: yeniDurum,
           hastaId: girisYapanHasta.HastaID
-        });
+        }, hastaAuthHeader());
         showToast(response.data.mesaj, "success");
         fetchRandevularim(girisYapanHasta.HastaID); 
       } catch (err) {
