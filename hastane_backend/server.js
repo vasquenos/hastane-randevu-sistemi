@@ -3,6 +3,7 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 require("dotenv").config();
 
 const app = express();
@@ -133,15 +134,36 @@ app.post("/hasta-giris", (req, res) => {
 // --- POST: ADMİN GİRİŞ (JWT) ---
 app.post("/admin-giris", (req, res) => {
   const { kullaniciAdi, sifre } = req.body;
-  
-  db.query("SELECT * FROM yonetici WHERE KullaniciAdi = ? AND YSifre = SHA2(?, 256)", [kullaniciAdi, sifre], (err, results) => {
+
+  // ÖNEMLİ GÜVENLİK YÜKSELTMESİ: Eskiden şifre karşılaştırması doğrudan SQL
+  // sorgusunun içinde "WHERE YSifre = SHA2(?, 256)" şeklinde yapılıyordu.
+  // SHA2 tuzsuzdur (aynı şifre her zaman aynı hash'i üretir) ve bcrypt'e göre
+  // çok daha zayıftır. Artık kullanıcı sadece adına göre bulunuyor, şifre
+  // karşılaştırması uygulama kodunda ve bcrypt ile yapılıyor.
+  db.query("SELECT * FROM yonetici WHERE KullaniciAdi = ?", [kullaniciAdi], async (err, results) => {
     if (err) return res.status(500).json({ mesaj: err.message });
     if (results.length === 0) return res.status(401).json({ mesaj: "Hatalı kullanıcı adı veya şifre!" });
 
     const hesap = results[0];
+    // Hash bcrypt formatında mı ($2 ile başlar) yoksa eski SHA2 formatında mı?
+    const isBcryptHash = typeof hesap.YSifre === "string" && hesap.YSifre.startsWith("$2");
+    let isMatch;
+    if (isBcryptHash) {
+      isMatch = await bcrypt.compare(sifre, hesap.YSifre);
+    } else {
+      const legacySha2 = crypto.createHash("sha256").update(sifre).digest("hex");
+      isMatch = legacySha2 === hesap.YSifre;
+    }
+
+    if (!isMatch) return res.status(401).json({ mesaj: "Hatalı kullanıcı adı veya şifre!" });
+
+    // Eski SHA2 hash'iyle başarılı giriş yapıldıysa, kaydı sessizce bcrypt'e yükselt.
+    if (!isBcryptHash) {
+      const yeniHash = await bcrypt.hash(sifre, 10);
+      db.query("UPDATE yonetici SET YSifre = ? WHERE YoneticiID = ?", [yeniHash, hesap.YoneticiID], () => {});
+    }
+
     // NOT: Bu, yonetici tablosunda Rol ve DoktorID sütunları olduğunu varsayar.
-    // Bu sütunlar henüz yoksa lütfen ekleyin (aşağıdaki açıklamaya bakın) —
-    // eklenene kadar sistem güvenli tarafta kalıp herkesi 'admin' sayacaktır.
     const rol = hesap.Rol ? String(hesap.Rol).toLowerCase() : 'admin';
     const doktorId = hesap.DoktorID || null;
 
