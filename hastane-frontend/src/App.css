@@ -1,19 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-/* --- RENK PALETİ VE DEĞİŞKENLER --- */
+/* --- RENK PALETİ VE DEĞİŞKENLER ---
+   Eskiden --text-main yeşildi (#206b3e) ama gölgeler/select oku zaten
+   koyu mor rgba(40,15,66,...) kullanıyordu — yani tasarımın kendi içinde
+   bir tutarsızlık vardı. Yeni palet bu moru temel alıp üzerine kurulu:
+   koyu indigo (güven/ciddiyet) + mercan-gül (sıcaklık/insan dokunuşu).
+   Aynı adı taşıyan değişkenleri kullandığımız için JSX'e dokunmadan
+   tüm siteye tek noktadan uygulanıyor. */
 :root {
-  --bg-main: #f8f8f8;
-  --bg-grid: #eef9ef;
-  --text-main: #206b3e;
+  --bg-main: #F7F4FC;       /* soğuk lavanta-beyaz zemin, jenerik #f8f8f8 yerine */
+  --bg-grid: #ECE5F7;       /* panel/kart zemin tonu */
+  --text-main: #280F42;     /* koyu indigo — marka rengi, zaten gölgelerde kullanılıyordu */
+  --text-dark: #170826;     /* gradyanların koyu ucu / footer başlangıcı */
+  --accent: #F1476B;        /* mercan-gül — CTA vurgusu, imza gradyan ortağı */
+  --accent-dark: #C92E52;   /* accent'in koyu/hover tonu */
   --transition-speed: 0.4s;
 }
 
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Manrope', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
   overflow-x: hidden;
+}
+
+/* Başlıklarda karakterli bir serif — Manrope gövde metniyle kasıtlı bir
+   kontrast oluşturuyor, jenerik tek-font (Poppins-her-yerde) hissini kırıyor. */
+h1, h2, h3,
+.logo,
+.hero-section h1,
+.section-title,
+.stat-item h2,
+.admin-header h2,
+.footer-section.brand h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
 }
 
 /* --- NAVBAR (MENÜ) --- */
@@ -35,6 +57,18 @@ body {
   color: var(--text-main);
   letter-spacing: 1px;
   transition: opacity 0.2s;
+  position: relative;
+}
+
+.logo::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 .logo:hover {
@@ -59,7 +93,7 @@ body {
 }
 
 .nav-btn:hover, .nav-btn.active {
-  background: linear-gradient(135deg, var(--text-main) 0%, #101500c3 100%);
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
   color: var(--bg-main);
 }
 
@@ -220,7 +254,7 @@ body {
   width: 100%;
   padding: 18px;
   margin-top: 10px;
-  background: linear-gradient(135deg, var(--text-main) 0%, #101500c3 100%);
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
   color: #ffffff;
   border: none;
   border-radius: 14px;
@@ -235,7 +269,7 @@ body {
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-4px);
   box-shadow: 0 12px 25px rgba(40, 15, 66, 0.3);
-  background: linear-gradient(135deg, #101500c3 0%, var(--text-main) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--text-main) 100%);
 }
 
 .submit-btn:active:not(:disabled) {
@@ -323,12 +357,12 @@ body {
 .time-slot-main:hover:not(.disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(40, 15, 66, 0.25);
-  background-color: #101500c3;
+  background-color: var(--text-dark);
 }
 
 .time-slot-main.active {
   border-radius: 12px 12px 0 0;
-  background-color: #101500c3;
+  background-color: var(--text-dark);
 }
 
 .time-slot-main.disabled {
@@ -496,7 +530,7 @@ body {
   justify-content: center;
   gap: 100px;
   padding: 80px 0;
-  background: #f8f9fa;
+  background: var(--bg-grid);
   text-align: center;
 }
 
@@ -566,7 +600,7 @@ body {
 
 /* --- FOOTER (ALT BİLGİ) TASARIMI --- */
 .footer {
-  background: linear-gradient(135deg, #1a082b 0%, var(--text-main) 100%);
+  background: linear-gradient(135deg, var(--text-dark) 0%, var(--text-main) 100%);
   color: #ffffff;
   padding: 60px 0 0 0;
   margin-top: 60px;
@@ -713,7 +747,7 @@ body {
 .admin-header h2 {
   font-size: 32px;
   font-weight: 800;
-  color: #111; 
+  color: var(--text-main); 
   margin: 0 0 10px 0;
   letter-spacing: -1px;
   border-bottom: none; 
@@ -734,14 +768,14 @@ body {
 
 .admin-submit-btn {
   margin-top: 15px;
-  background: #111111; 
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--text-dark) 100%);
+  box-shadow: 0 10px 20px rgba(40, 15, 66, 0.25);
 }
 
 .admin-submit-btn:hover {
-  background: #333333;
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 25px rgba(40, 15, 66, 0.3);
 }
 
 /* --- MODERN BİLDİRİM (TOAST NOTIFICATION) --- */
@@ -810,8 +844,8 @@ body {
 .spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid rgba(32, 107, 62, 0.2);
-  border-top-color: #206b3e;
+  border: 5px solid rgba(40, 15, 66, 0.15);
+  border-top-color: var(--text-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;

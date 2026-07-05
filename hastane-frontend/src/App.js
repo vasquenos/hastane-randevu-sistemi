@@ -492,7 +492,7 @@ export default function App() {
                   key={index}
                   className="slider-bg"
                   style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${img})`,
+                    backgroundImage: `linear-gradient(135deg, rgba(40,15,66,0.82) 0%, rgba(23,8,38,0.65) 55%, rgba(241,71,107,0.35) 100%), url(${img})`,
                     opacity: currentImageIndex === index ? 1 : 0
                   }}
                 />
